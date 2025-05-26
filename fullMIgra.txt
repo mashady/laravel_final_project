@@ -1,0 +1,135 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // 1. Users Table
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->enum('role', ['student', 'owner', 'admin']);
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        // 2. Password Reset and Sessions
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index()->constrained()->onDelete('cascade');
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+
+        // 3. Student Profiles
+        Schema::create('student_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('picture')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('university')->nullable();
+            $table->string('identity_verification')->nullable();
+            $table->timestamps();
+        });
+
+        // 4. Owner Profiles
+        Schema::create('owner_profiles', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('picture')->nullable();
+            $table->text('bio')->nullable();
+            $table->string('identity_verification')->nullable();
+            $table->timestamps();
+        });
+
+        // 5. Amenities
+        Schema::create('amenities', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
+
+        // 6. Ads
+        Schema::create('ads', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
+            $table->string('title');
+            $table->enum('type', ['apartment', 'room', 'bed']);
+            $table->string('picture')->nullable();
+            $table->string('video')->nullable();
+            $table->text('description');
+            $table->decimal('price', 10, 2);
+            $table->text('location');
+            $table->decimal('mesa7a', 8, 2);
+            $table->enum('active', ['pending', 'published', 'closed', 'rejected', 'cancelled'])->default('pending');
+            $table->timestamps();
+        });
+
+        // 7. Ad Amenity (Pivot)
+        Schema::create('ad_amenity', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ad_id')->constrained('ads')->onDelete('cascade');
+            $table->foreignId('amenity_id')->constrained('amenities')->onDelete('cascade');
+        });
+
+        // 8. Reviews
+        Schema::create('reviews', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // student
+            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade'); // owner
+            $table->text('content');
+            $table->timestamps();
+        });
+
+        // 9. Bookings
+        Schema::create('bookings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('ad_id')->constrained('ads')->onDelete('cascade');
+            $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+            $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
+            $table->enum('status', ['waiting', 'accepted', 'rejected'])->default('waiting');
+            $table->text('book_content')->nullable();
+            $table->timestamps();
+        });
+
+        // 10. Payments
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
+            $table->string('transaction_id')->unique();
+            $table->decimal('total', 10, 2);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('payments');
+        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('reviews');
+        Schema::dropIfExists('ad_amenity');
+        Schema::dropIfExists('ads');
+        Schema::dropIfExists('amenities');
+        Schema::dropIfExists('owner_profiles');
+        Schema::dropIfExists('student_profiles');
+        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
+    }
+};

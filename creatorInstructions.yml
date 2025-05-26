@@ -1,0 +1,22 @@
+# first => handle migrations order
+
+1- user
+php artisan make:model Models/User -m
+
+2-
+php artisan make:model Models/StudentProfile -m
+
+3-
+php artisan make:model Models/OwnerProfile -m
+
+4-
+php artisan make:model Models/Ad -m
+
+
+5-
+php artisan make:model Models/Media -m
+
+
+6-
+php artisan make:model Models/Amenity -m
+php artisan make:migration create_ad_amenity_table
