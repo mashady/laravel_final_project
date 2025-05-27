@@ -35,16 +35,16 @@ class AuthController extends Controller
             $image->move($docsDir, $filename);
             
             // Store the path for database
-            $documentPath = url('documents/', $filename);
-
-            //Update the document_path in request
-            $request['verification_document'] = $documentPath;
+            $documentPath = url('documents/' . $filename);
         }
 
-        //Hash the password before storing in DB
-        $request->password = Hash::make($request['password']);
-    
-        $user = User::create($request->all());
+        // Build clean data array to allow access and modify on request data itself
+        $data = $request->only(['name', 'email', 'role', 'verification_status']);
+        $data['password'] = Hash::make($request->password);
+        $data['verification_document'] = $documentPath;
+
+        //Store the data in the DB
+        $user = User::create($data);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
