@@ -21,7 +21,7 @@ class UserController extends Controller
         $users = User::all();
 
         return response()->json([
-            'success' => 'true',
+            'success' => true,
             'message' => 'Users retrieved successfully',
             'data' => $users
         ], 200);
@@ -57,7 +57,7 @@ class UserController extends Controller
         $user = User::create($data);
 
         return response()->json([
-            'success' => 'true',
+            'success' => true,
             'message' => 'User created successfully',
             'data' => $user
         ], 201);
@@ -69,18 +69,18 @@ class UserController extends Controller
     public function show(string $id)
     {
         //
-        $user = User->find($id);
+        $user = User::find($id);
 
         if( !$user ) {
             return response()->json([
-                'success' => 'false',
+                'success' => false,
                 'message' => 'User not found.',
                 'data' => null
             ], 404);
         }
 
         return response()->json([
-                'success' => 'true',
+                'success' => true,
                 'message' => 'User retrieved successfully.',
                 'data' => $user
             ], 200);
@@ -95,48 +95,67 @@ class UserController extends Controller
 
         if (!$user) {
             return response()->json([
-                'success' => 'false',
+                'success' => false,
                 'message' => 'User not found.',
                 'data' => null
             ], 404);
         }
 
-        $documentPath = null;
+        // Get all validated data from the request
+        $validatedData = $request->validated();
 
+        // Handle file upload first if present
         if ($request->hasFile('verification_document')) {
             $document = $request->file('verification_document');
-            $fileName = time() . '_' . Str::slug($request->input('name', 'user')) . '.' . $document->getClientOriginalExtension();
+            
+            // Always use the user's name (updated name if provided, otherwise current name)
+            $userName = $request->filled('name') ? $request->input('name') : $user->name;
+            $fileName = time() . '_' . Str::slug($userName) . '.' . $document->getClientOriginalExtension();
 
+            // Create documents directory in public folder
             $docsDir = public_path('documents');
             if (!file_exists($docsDir)) {
                 mkdir($docsDir, 0755, true);
             }
-
+            
+            // Move the uploaded file
             $document->move($docsDir, $fileName);
             $documentPath = url('documents/' . $fileName);
-        }
-
-        // Only update if the field is present
-        if ($request->filled('name')) {
-            $user->name = $request->input('name');
-        }
-        if ($request->filled('email')) {
-            $user->email = $request->input('email');
-        }
-        if ($request->filled('role')) {
-            $user->role = $request->input('role');
-        }
-        if ($request->filled('verification_status')) {
-            $user->verification_status = $request->input('verification_status');
-        }
-        if ($documentPath) {
+            
+            // Delete old document if it exists
+            if ($user->verification_document) {
+                $oldDocumentName = basename(parse_url($user->verification_document, PHP_URL_PATH));
+                $oldFilePath = public_path('documents/' . $oldDocumentName);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
+            
+            // Update the user's verification document path
             $user->verification_document = $documentPath;
         }
 
+        // Remove verification_document and _method from validated data
+        unset($validatedData['verification_document']);
+        unset($validatedData['_method']); // Remove method spoofing field
+        
+        // Update all other fields that are present in the request
+        foreach ($validatedData as $key => $value) {
+            if ($request->has($key) && $key !== '_method') { // Skip _method field
+                if ($key === 'password') {
+                    // Hash password before saving
+                    $user->password = Hash::make($value);
+                } else {
+                    $user->$key = $value;
+                }
+            }
+        }
+
+        // Save all changes
         $user->save();
 
         return response()->json([
-            'success' => 'true',
+            'success' => true,
             'message' => 'User updated successfully.',
             'data' => $user
         ], 200);
@@ -149,5 +168,22 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+                'data' => null
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully.',
+                'data' => null
+            ], 200);
     }
 }
