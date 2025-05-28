@@ -54,16 +54,14 @@ class StudentProfileController extends Controller
      */
     public function update(UpdateStudentProfileRequest $request, StudentProfile $studentProfile)
     {
-        // Check if user owns this profile
         if ($studentProfile->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         
         $validated = $request->validated();
         
-        // Handle picture upload if present
+       
         if ($request->hasFile('picture')) {
-            // Delete old picture if exists
             if ($studentProfile->picture) {
                 Storage::disk('public')->delete($studentProfile->picture);
             }
@@ -80,12 +78,10 @@ class StudentProfileController extends Controller
      */
     public function destroy(StudentProfile $studentProfile)
     {
-        // Check if user owns this profile
         if ($studentProfile->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         
-        // Delete picture file if exists
         if ($studentProfile->picture) {
             Storage::disk('public')->delete($studentProfile->picture);
         }

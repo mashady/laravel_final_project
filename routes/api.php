@@ -29,24 +29,16 @@ Route::apiResource('/ads', AdController::class);
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Profile completion and status
     Route::get('/student-profile/has-profile', [StudentProfileController::class, 'hasProfile']);
     Route::get('/student-profile/completion', [StudentProfileController::class, 'profileCompletion']);
     Route::post('/student-profile/complete-step', [StudentProfileController::class, 'completeProfileStep']);
-    
-
     Route::get('/student-profile/my-profile', [StudentProfileController::class, 'myProfile']);
     Route::post('/student-profile/bulk-update', [StudentProfileController::class, 'bulkUpdate']);
-
     Route::post('/student-profile/update-picture', [StudentProfileController::class, 'updatePicture']);
     Route::delete('/student-profile/remove-picture', [StudentProfileController::class, 'removePicture']);
-    
-
     Route::get('/student-profile/search-university', [StudentProfileController::class, 'searchByUniversity']);
     Route::get('/student-profile/user/{userId}', [StudentProfileController::class, 'getProfileByUserId']);
-
     Route::get('/student-profile/stats', [StudentProfileController::class, 'profileStats']);
-    
     Route::apiResource('student-profile', StudentProfileController::class);
 });
 
