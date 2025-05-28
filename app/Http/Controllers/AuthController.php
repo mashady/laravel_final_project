@@ -6,16 +6,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function register(StoreUserRequest $request)
     {
         //
@@ -34,16 +31,16 @@ class AuthController extends Controller
             // Move the uploaded file
             $image->move($docsDir, $filename);
             
-            // Store the path for database
+            // Create the full path for database
             $documentPath = url('documents/' . $filename);
         }
 
-        // Build clean data array to allow access and modify on request data itself
+        // Build clean data array to allow access to request data and modify on request data itself
         $data = $request->only(['name', 'email', 'role', 'verification_status']);
         $data['password'] = Hash::make($request->password);
         $data['verification_document'] = $documentPath;
 
-        //Store the data in the DB
+        // Store the data in the DB
         $user = User::create($data);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -56,9 +53,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function login(Request $request)
     {
         //
@@ -74,7 +69,10 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
+            return response()->json([
+                'success' => 'false',
+                'message' => 'Invalid credentials.'
+            ], 401);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
