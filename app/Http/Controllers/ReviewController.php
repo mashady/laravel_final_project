@@ -17,7 +17,7 @@ class ReviewController extends Controller
             'owner_id' => $request->owner_id,
             'content' => $request->content,
 
-            // Optional: If you have a rating field
+            
         
         ]);
 
