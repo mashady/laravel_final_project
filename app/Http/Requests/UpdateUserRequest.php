@@ -12,7 +12,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,12 +24,13 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             //
-            'name' => ['sometimes', 'string', 'min:3', 'max:100', 'regex:/^[\pL\s\-\.\']+$/u'],
-            'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email'],
+            'name' => ['sometimes', 'required', 'string', 'min:3', 'max:100', 'regex:/^[\pL\s\-\.\']+$/u'],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('id'))],
             'password' => ['sometimes', 'confirmed', 'min:8', 'max:128'],
-            'role' => ['sometimes', 'string', Rule::in(['admin', 'owner', 'student'])],
-            'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified']), 'default:unverified'],
+            'role' => ['sometimes', 'required', 'string', Rule::in(['admin', 'owner', 'student'])],
+            'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified'])],
             'verification_document' => ['sometimes', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            '_method' => ['sometimes', 'string']
         ];
     }
 
