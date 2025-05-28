@@ -76,7 +76,7 @@ return new class extends Migration
             $table->text('description');
             $table->decimal('price', 10, 2);
             $table->text('location');
-            $table->decimal('mesa7a', 8, 2);
+            $table->decimal('space', 8, 2);
             $table->enum('active', ['pending', 'published', 'closed', 'rejected', 'cancelled'])->default('pending');
             $table->timestamps();
         });
