@@ -21,7 +21,7 @@ class Ad extends Model
 
     public function media()
     {
-        return $this->hasMany(AdMedia::class);
+        return $this->hasMany(Media::class);
     }
 
     public function amenities()
@@ -38,10 +38,10 @@ class Ad extends Model
 
     public function primaryImage()
     {
-        return $this->hasOne(AdMedia::class)->where('is_primary', true);
+        return $this->hasOne(Media::class)->where('is_primary', true);
     }
 
-    // Scopes
+    
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
