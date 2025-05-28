@@ -37,4 +37,28 @@ class ReviewController extends Controller
 
         return ReviewResource::collection($reviews);
     }
+
+    public function destroy($id)
+{
+    $review = Review::find($id);
+
+    if (!$review) {
+        return response()->json([
+            'message' => 'review not found',
+        ], 404);
+    }
+
+    if ($review->user_id !== auth()->id()) {
+        return response()->json([
+            'message' => "not authorized to delete this review",
+        ], 403);
+    }
+
+    $review->delete();
+
+    return response()->json([
+        'message' => "deleted successfully",
+    ], 200);
+}
+
 }

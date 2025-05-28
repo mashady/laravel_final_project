@@ -18,4 +18,5 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
+     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
