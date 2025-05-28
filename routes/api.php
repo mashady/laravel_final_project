@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\StudentProfileController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -12,3 +12,27 @@ Route::get('/user', function (Request $request) {
 //These are registration routes 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    // Profile completion and status
+    Route::get('/student-profile/has-profile', [StudentProfileController::class, 'hasProfile']);
+    Route::get('/student-profile/completion', [StudentProfileController::class, 'profileCompletion']);
+    Route::post('/student-profile/complete-step', [StudentProfileController::class, 'completeProfileStep']);
+    
+
+    Route::get('/student-profile/my-profile', [StudentProfileController::class, 'myProfile']);
+    Route::post('/student-profile/bulk-update', [StudentProfileController::class, 'bulkUpdate']);
+
+    Route::post('/student-profile/update-picture', [StudentProfileController::class, 'updatePicture']);
+    Route::delete('/student-profile/remove-picture', [StudentProfileController::class, 'removePicture']);
+    
+
+    Route::get('/student-profile/search-university', [StudentProfileController::class, 'searchByUniversity']);
+    Route::get('/student-profile/user/{userId}', [StudentProfileController::class, 'getProfileByUserId']);
+
+    Route::get('/student-profile/stats', [StudentProfileController::class, 'profileStats']);
+    
+    Route::apiResource('student-profile', StudentProfileController::class);
+});
+
+Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
+Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);

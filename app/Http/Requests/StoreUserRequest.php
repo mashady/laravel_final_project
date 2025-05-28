@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
             //
             'name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[\pL\s\-\.\']+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8', 'max:128'],
+            'password' => ['required', 'min:8', 'max:128'],
             'role' => ['required', 'string', Rule::in(['admin', 'owner', 'student'])],
             'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified']), 'default:unverified'],
             'verification_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
