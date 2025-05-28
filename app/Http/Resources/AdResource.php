@@ -4,12 +4,19 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\MediaResource;
 
+/**
+ * Class AdResource
+ *
+ * Transforms Ad model data for API responses.
+ */
 class AdResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
+     * @param Request $request
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -31,18 +38,12 @@ class AdResource extends JsonResource
             'media' => MediaResource::collection($this->whenLoaded('media')),
             
             'media_count' => [
-                'total' => $this->whenLoaded('media', function () {
-                    return $this->media->count();
-                }, 0),
-                'images' => $this->whenLoaded('media', function () {
-                    return $this->media->where('media_type', 'image')->count();
-                }, 0),
-                'videos' => $this->whenLoaded('media', function () {
-                    return $this->media->where('media_type', 'video')->count();
-                }, 0),
+                'total' => $this->relationLoaded('media') ? $this->media->count() : 0,
+                'images' => $this->relationLoaded('media') ? $this->media->where('media_type', 'image')->count() : 0,
+                'videos' => $this->relationLoaded('media') ? $this->media->where('media_type', 'video')->count() : 0,
             ],
             
-            'owner' => $this->when($this->relationLoaded('owner'), function () {
+            'owner' => $this->when($this->relationLoaded('owner') && $this->owner, function () {
                 return [
                     'id' => $this->owner->id,
                     'name' => $this->owner->name,
@@ -70,7 +71,9 @@ class AdResource extends JsonResource
         ];
     }
 
-    
+    /**
+     * Get the primary image URL or null.
+     */
     protected function getPrimaryImage(): ?string
     {
         if (!$this->relationLoaded('media')) {
@@ -91,7 +94,9 @@ class AdResource extends JsonResource
         return $primaryImage ? asset('storage/' . $primaryImage->file_path) : null;
     }
 
-    
+    /**
+     * Get the primary video URL or null.
+     */
     protected function getPrimaryVideo(): ?string
     {
         if (!$this->relationLoaded('media')) {
@@ -112,7 +117,9 @@ class AdResource extends JsonResource
         return $primaryVideo ? asset('storage/' . $primaryVideo->file_path) : null;
     }
 
-    
+    /**
+     * Determine if the owner email should be shown.
+     */
     protected function shouldShowOwnerEmail(): bool
     {
         if (!auth()->check()) {
@@ -123,13 +130,17 @@ class AdResource extends JsonResource
                auth()->id() === $this->owner_id;
     }
 
-    
+    /**
+     * Format the price with currency.
+     */
     protected function formatPrice(): string
     {
         return number_format($this->price, 2) . ' EGP';
     }
 
-    
+    /**
+     * Calculate price per square meter.
+     */
     protected function calculatePricePerSquareMeter(): ?string
     {
         if (!$this->space || $this->space <= 0) {
@@ -140,14 +151,18 @@ class AdResource extends JsonResource
         return number_format($pricePerSqm, 2) . ' EGP/m²';
     }
 
-   
+    /**
+     * Determine if the current user can edit the ad.
+     */
     protected function canUserEdit(): bool
     {
         return auth()->id() === $this->owner_id || 
                auth()->user()->role === 'admin';
     }
 
-    
+    /**
+     * Determine if the current user can delete the ad.
+     */
     protected function canUserDelete(): bool
     {
         return auth()->id() === $this->owner_id || 
