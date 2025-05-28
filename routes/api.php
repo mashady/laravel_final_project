@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -18,5 +19,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
 
+
+
+
+// ad routes 
+Route::apiResource('/ads', AdController::class);
 
 
