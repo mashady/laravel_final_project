@@ -9,6 +9,10 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\BookingController;
+
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -39,5 +43,22 @@ Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
 // ad routes 
 Route::apiResource('/ads', AdController::class);
+
+
+
+
+// Booking Routes
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/bookings', [BookingController::class, 'store']);
+
+    Route::get('/bookings/my', [BookingController::class, 'myBookings']);
+
+    Route::get('/bookings', [BookingController::class, 'allBookings']);
+
+    Route::patch('/bookings/{id}/status', [BookingController::class, 'updateStatus']);
+
+    Route::patch('/bookings/{id}/payment', [BookingController::class, 'updatePayment']);
+});
 
 
