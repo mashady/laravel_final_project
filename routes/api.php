@@ -9,6 +9,8 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\ReviewController;
+
+use App\Http\Controllers\StudentProfileController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -41,3 +43,21 @@ Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 Route::apiResource('/ads', AdController::class);
 
 
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/student-profile/has-profile', [StudentProfileController::class, 'hasProfile']);
+    Route::get('/student-profile/completion', [StudentProfileController::class, 'profileCompletion']);
+    Route::post('/student-profile/complete-step', [StudentProfileController::class, 'completeProfileStep']);
+    Route::get('/student-profile/my-profile', [StudentProfileController::class, 'myProfile']);
+    Route::post('/student-profile/bulk-update', [StudentProfileController::class, 'bulkUpdate']);
+    Route::post('/student-profile/update-picture', [StudentProfileController::class, 'updatePicture']);
+    Route::delete('/student-profile/remove-picture', [StudentProfileController::class, 'removePicture']);
+    Route::get('/student-profile/search-university', [StudentProfileController::class, 'searchByUniversity']);
+    Route::get('/student-profile/user/{userId}', [StudentProfileController::class, 'getProfileByUserId']);
+    Route::get('/student-profile/stats', [StudentProfileController::class, 'profileStats']);
+    Route::apiResource('student-profile', StudentProfileController::class);
+});
+
+Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
+Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
