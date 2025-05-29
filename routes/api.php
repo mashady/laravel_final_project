@@ -11,6 +11,10 @@ use App\Http\Controllers\AdController;
 use App\Http\Controllers\ReviewController;
 
 use App\Http\Controllers\StudentProfileController;
+use App\Http\Controllers\BookingController;
+
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -38,13 +42,21 @@ Route::post('/reviews', [ReviewController::class, 'store']);
 Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
-
 // ad routes 
 Route::apiResource('/ads', AdController::class);
 
+// Booking Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/bookings', [BookingController::class, 'store']);
+    Route::get('/bookings/my', [BookingController::class, 'myBookings']);
+    Route::get('/bookings', [BookingController::class, 'allBookings']);
+    Route::patch('/bookings/{id}/status', [BookingController::class, 'updateStatus']);
+    Route::patch('/bookings/{id}/payment', [BookingController::class, 'updatePayment']);
+});
 
 
 
+// Student Profile Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/student-profile/has-profile', [StudentProfileController::class, 'hasProfile']);
     Route::get('/student-profile/completion', [StudentProfileController::class, 'profileCompletion']);
