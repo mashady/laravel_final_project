@@ -18,7 +18,11 @@ class OwnerController extends Controller
      */
     public function index()
     {
-        //
+        $owners = OwnerProfile::with('user')->get();
+        if ($owners->isEmpty()) {
+            return response()->json(['message' => 'No owner profiles found'], 404);
+        }
+        return response()->json($owners);
     }
 
     /**
@@ -34,7 +38,17 @@ class OwnerController extends Controller
         }
     
         $validated['user_id'] = $request->user()->id;
-    
+        //check role
+        if ($request->user()->role !== 'owner') {
+            return response()->json(['message' => 'User is not an owner'], 400);
+        }
+
+        //check if the user already has a profile
+        $existingProfile = OwnerProfile::where('user_id', $request->user()->id)->first();
+        if ($existingProfile) {
+            return response()->json(['message' => 'User already has a profile'], 400);
+        }
+
         $profile = OwnerProfile::create($validated);
     
         return response()->json([
@@ -50,8 +64,7 @@ class OwnerController extends Controller
     public function show(string $id)
     {
     
-        $profile = OwnerProfile::where('user_id', $id)->first();
-    
+        $profile = OwnerProfile::where('user_id', $id)->with('user')->first();
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
@@ -75,6 +88,10 @@ class OwnerController extends Controller
             return response()->json(['message' => 'Profile not found'], 404);
         }
     
+        //check if the user is an owner and this proofile belongs to them
+        if ($user->role !== 'owner' || $profile->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         $this->authorize('update', $profile);
 
         $validated = $request->validated();
