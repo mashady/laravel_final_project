@@ -9,7 +9,7 @@ class OwnerProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'picture', 'bio'/* , 'identity_verification' */];
+    protected $fillable = ['user_id', 'picture', 'bio'];
 
     public function user()
     {
