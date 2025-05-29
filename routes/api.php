@@ -45,19 +45,38 @@ Route::apiResource('/ads', AdController::class);
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/student-profile/has-profile', [StudentProfileController::class, 'hasProfile']);
-    Route::get('/student-profile/completion', [StudentProfileController::class, 'profileCompletion']);
-    Route::post('/student-profile/complete-step', [StudentProfileController::class, 'completeProfileStep']);
-    Route::get('/student-profile/my-profile', [StudentProfileController::class, 'myProfile']);
-    Route::post('/student-profile/bulk-update', [StudentProfileController::class, 'bulkUpdate']);
-    Route::post('/student-profile/update-picture', [StudentProfileController::class, 'updatePicture']);
-    Route::delete('/student-profile/remove-picture', [StudentProfileController::class, 'removePicture']);
-    Route::get('/student-profile/search-university', [StudentProfileController::class, 'searchByUniversity']);
-    Route::get('/student-profile/user/{userId}', [StudentProfileController::class, 'getProfileByUserId']);
-    Route::get('/student-profile/stats', [StudentProfileController::class, 'profileStats']);
-    Route::apiResource('student-profile', StudentProfileController::class);
+// Student Profile Routes
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Get all student profiles
+    Route::get('/student-profiles', [StudentProfileController::class, 'index']);
+    
+    // Create student profile
+    Route::post('/student-profiles', [StudentProfileController::class, 'store']);
+    
+    // Get specific student profile
+    Route::get('/student-profiles/{id}', [StudentProfileController::class, 'show']);
+    
+    // Update student profile
+    Route::put('/student-profiles', [StudentProfileController::class, 'update']);
+    
+    // Delete student profile
+    Route::delete('/student-profiles/{id}', [StudentProfileController::class, 'destroy']);
+    
+    // Get authenticated user's profile
+    Route::get('/my-profile', [StudentProfileController::class, 'myProfile']);
+    
+    // Check if user has a profile
+    Route::get('/has-profile', [StudentProfileController::class, 'hasProfile']);
+    
+    // Get profile completion status
+    Route::get('/profile-completion', [StudentProfileController::class, 'profileCompletion']);
+    
+    // Update profile picture only
+    Route::post('/update-picture', [StudentProfileController::class, 'updatePicture']);
+    
+    // Remove profile picture
+    Route::delete('/remove-picture', [StudentProfileController::class, 'removePicture']);
 });
 
-Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
-Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
+// Search profiles by university (public route)
+Route::get('/search-by-university', [StudentProfileController::class, 'searchByUniversity']);
