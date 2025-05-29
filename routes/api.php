@@ -20,10 +20,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/owners', [OwnerController::class, 'index']);
     Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
     Route::post('/createowner', [OwnerController::class, 'store']);
     Route::post('/updateowner', [OwnerController::class, 'update']);
     Route::delete('/deleteowner/{id}', [OwnerController::class, 'destroy']);
+
 });
 // USer Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
