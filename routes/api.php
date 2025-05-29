@@ -15,7 +15,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-<<<<<<< HEAD
+
 
 //These are review routes   
 Route::middleware('auth:sanctum')->group(function () {
@@ -23,7 +23,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
      Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
-=======
+
+
+
 // USer Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
@@ -35,4 +37,3 @@ Route::apiResource('users', UserController::class);
 Route::apiResource('/ads', AdController::class);
 
 
->>>>>>> 499bdd6f7bc0979ff29feec5adc4988ab382d1ec
