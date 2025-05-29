@@ -5,20 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\StudentProfile;
 use App\Http\Requests\StoreStudentProfileRequest;
 use App\Http\Requests\UpdateStudentProfileRequest;
-use App\Http\Resources\StudentProfileResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class StudentProfileController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $profiles = StudentProfile::with('user')->paginate(10);
-        return StudentProfileResource::collection($profiles);
+        $profiles = StudentProfile::with('user')->get();
+        if ($profiles->isEmpty()) {
+            return response()->json(['message' => 'No student profiles found'], 404);
+        }
+        return response()->json($profiles);
     }
 
     /**
@@ -26,69 +30,112 @@ class StudentProfileController extends Controller
      */
     public function store(StoreStudentProfileRequest $request)
     {
-        $validated = $request->validated();
+        $user = $request->user();
         
-        // Handle picture upload if present
-        if ($request->hasFile('picture')) {
-            $validated['picture'] = $request->file('picture')->store('profile-pictures', 'public');
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
-        
-        // Add authenticated user's ID
-        $validated['user_id'] = Auth::id();
-        
+
+        $validated = $request->validated();
+
+        if ($request->hasFile('picture')) {
+            $path = $request->file('picture')->store('profile-pictures', 'public');
+            $validated['picture'] = $path;
+        }
+
+        $validated['user_id'] = $user->id;
+
+        if ($user->role !== 'student') {
+            return response()->json(['message' => 'User is not a student'], 400);
+        }
+
+        $existingProfile = StudentProfile::where('user_id', $user->id)->first();
+        if ($existingProfile) {
+            return response()->json(['message' => 'User already has a profile'], 400);
+        }
+
         $profile = StudentProfile::create($validated);
-        
-        return new StudentProfileResource($profile->load('user'));
+
+        return response()->json([
+            'message' => 'Student profile created successfully',
+            'data' => $profile
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(StudentProfile $studentProfile)
+    public function show(string $id)
     {
-        return new StudentProfileResource($studentProfile->load('user'));
+        $profile = StudentProfile::where('user_id', $id)->with('user')->first();
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found'], 404);
+        }
+        return response()->json([
+            'message' => 'Profile retrieved successfully',
+            'data' => $profile
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStudentProfileRequest $request, StudentProfile $studentProfile)
+    public function update(UpdateStudentProfileRequest $request)
     {
-        if ($studentProfile->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
         }
-        
+
+        $profile = StudentProfile::where('user_id', $user->id)->first();
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found'], 404);
+        }
+
+        if ($user->role !== 'student' || $profile->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $this->authorize('update', $profile);
+
         $validated = $request->validated();
-        
-       
+
         if ($request->hasFile('picture')) {
-            if ($studentProfile->picture) {
-                Storage::disk('public')->delete($studentProfile->picture);
+            if ($profile->picture && Storage::disk('public')->exists($profile->picture)) {
+                Storage::disk('public')->delete($profile->picture);
             }
-            $validated['picture'] = $request->file('picture')->store('profile-pictures', 'public');
+
+            $path = $request->file('picture')->store('profile-pictures', 'public');
+            $validated['picture'] = $path;
         }
-        
-        $studentProfile->update($validated);
-        
-        return new StudentProfileResource($studentProfile->load('user'));
+
+        $profile->update($validated);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'data' => $profile
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StudentProfile $studentProfile)
+    public function destroy(string $id)
     {
-        if ($studentProfile->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $studentProfile = StudentProfile::where('user_id', $id)->first();
+        if (!$studentProfile) {
+            return response()->json(['message' => 'Student profile not found'], 404);
         }
-        
-        if ($studentProfile->picture) {
+
+        if ($studentProfile->picture && Storage::disk('public')->exists($studentProfile->picture)) {
             Storage::disk('public')->delete($studentProfile->picture);
         }
-        
+
         $studentProfile->delete();
-        
-        return response()->json(['message' => 'Profile deleted successfully']);
+
+        return response()->json(['message' => 'Student profile deleted successfully']);
     }
 
     /**
@@ -96,13 +143,16 @@ class StudentProfileController extends Controller
      */
     public function myProfile()
     {
-        $profile = StudentProfile::where('user_id', Auth::id())->with('user')->first();
+        $profile = StudentProfile::where('user_id', auth()->id())->with('user')->first();
         
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
         
-        return new StudentProfileResource($profile);
+        return response()->json([
+            'message' => 'Profile retrieved successfully',
+            'data' => $profile
+        ]);
     }
 
     /**
@@ -110,7 +160,7 @@ class StudentProfileController extends Controller
      */
     public function hasProfile()
     {
-        $hasProfile = StudentProfile::where('user_id', Auth::id())->exists();
+        $hasProfile = StudentProfile::where('user_id', auth()->id())->exists();
         
         return response()->json(['has_profile' => $hasProfile]);
     }
@@ -120,7 +170,7 @@ class StudentProfileController extends Controller
      */
     public function profileCompletion()
     {
-        $profile = StudentProfile::where('user_id', Auth::id())->first();
+        $profile = StudentProfile::where('user_id', auth()->id())->first();
         
         if (!$profile) {
             return response()->json([
@@ -151,72 +201,8 @@ class StudentProfileController extends Controller
             'completed_fields' => $completedFields,
             'missing_fields' => $missingFields,
             'is_complete' => $completionPercentage === 100,
-            'profile' => new StudentProfileResource($profile->load('user'))
+            'data' => $profile->load('user')
         ]);
-    }
-
-    /**
-     * Complete profile step by step
-     */
-    public function completeProfileStep(Request $request)
-    {
-        $request->validate([
-            'step' => 'required|string|in:picture,bio,university',
-            'value' => 'required',
-        ]);
-
-        $profile = StudentProfile::firstOrCreate(
-            ['user_id' => Auth::id()],
-            ['user_id' => Auth::id()]
-        );
-
-        $step = $request->step;
-        $value = $request->value;
-
-        // Handle different step types
-        switch ($step) {
-            case 'picture':
-                $request->validate(['value' => 'image|mimes:jpeg,png,jpg,gif|max:2048']);
-                
-                // Delete old picture if exists
-                if ($profile->picture) {
-                    Storage::disk('public')->delete($profile->picture);
-                }
-                
-                $profile->picture = $request->file('value')->store('profile-pictures', 'public');
-                break;
-                
-            case 'bio':
-                $request->validate(['value' => 'string|max:1000']);
-                $profile->bio = $value;
-                break;
-                
-            case 'university':
-                $request->validate(['value' => 'string|max:255']);
-                $profile->university = $value;
-                break;
-        }
-
-        $profile->save();
-
-        return response()->json([
-            'message' => ucfirst($step) . ' updated successfully',
-            'profile' => new StudentProfileResource($profile->load('user'))
-        ]);
-    }
-
-    /**
-     * Get profile by user ID (for viewing other profiles)
-     */
-    public function getProfileByUserId($userId)
-    {
-        $profile = StudentProfile::where('user_id', $userId)->with('user')->first();
-        
-        if (!$profile) {
-            return response()->json(['message' => 'Profile not found'], 404);
-        }
-        
-        return new StudentProfileResource($profile);
     }
 
     /**
@@ -230,9 +216,16 @@ class StudentProfileController extends Controller
 
         $profiles = StudentProfile::where('university', 'like', '%' . $request->university . '%')
             ->with('user')
-            ->paginate(10);
+            ->get();
 
-        return StudentProfileResource::collection($profiles);
+        if ($profiles->isEmpty()) {
+            return response()->json(['message' => 'No profiles found for this university'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Profiles retrieved successfully',
+            'data' => $profiles
+        ]);
     }
 
     /**
@@ -244,14 +237,14 @@ class StudentProfileController extends Controller
             'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $profile = StudentProfile::where('user_id', Auth::id())->first();
+        $profile = StudentProfile::where('user_id', auth()->id())->first();
         
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
 
-        // Delete old picture if exists
-        if ($profile->picture) {
+   
+        if ($profile->picture && Storage::disk('public')->exists($profile->picture)) {
             Storage::disk('public')->delete($profile->picture);
         }
 
@@ -269,80 +262,18 @@ class StudentProfileController extends Controller
      */
     public function removePicture()
     {
-        $profile = StudentProfile::where('user_id', Auth::id())->first();
+        $profile = StudentProfile::where('user_id', auth()->id())->first();
         
         if (!$profile) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
 
-        if ($profile->picture) {
+        if ($profile->picture && Storage::disk('public')->exists($profile->picture)) {
             Storage::disk('public')->delete($profile->picture);
             $profile->picture = null;
             $profile->save();
         }
 
         return response()->json(['message' => 'Profile picture removed successfully']);
-    }
-
-    /**
-     * Get profile statistics
-     */
-    public function profileStats()
-    {
-        $totalProfiles = StudentProfile::count();
-        $completedProfiles = StudentProfile::whereNotNull('picture')
-            ->whereNotNull('bio')
-            ->whereNotNull('university')
-            ->count();
-        
-        $profilesWithPicture = StudentProfile::whereNotNull('picture')->count();
-        $profilesWithBio = StudentProfile::whereNotNull('bio')->count();
-        $profilesWithUniversity = StudentProfile::whereNotNull('university')->count();
-
-        return response()->json([
-            'total_profiles' => $totalProfiles,
-            'completed_profiles' => $completedProfiles,
-            'completion_rate' => $totalProfiles > 0 ? round(($completedProfiles / $totalProfiles) * 100) : 0,
-            'profiles_with_picture' => $profilesWithPicture,
-            'profiles_with_bio' => $profilesWithBio,
-            'profiles_with_university' => $profilesWithUniversity,
-        ]);
-    }
-
-    /**
-     * Bulk update profile fields
-     */
-    public function bulkUpdate(Request $request)
-    {
-        $request->validate([
-            'bio' => 'nullable|string|max:1000',
-            'university' => 'nullable|string|max:255',
-        ]);
-
-        $profile = StudentProfile::firstOrCreate(
-            ['user_id' => Auth::id()],
-            ['user_id' => Auth::id()]
-        );
-
-        $updated = false;
-        
-        if ($request->has('bio')) {
-            $profile->bio = $request->bio;
-            $updated = true;
-        }
-        
-        if ($request->has('university')) {
-            $profile->university = $request->university;
-            $updated = true;
-        }
-
-        if ($updated) {
-            $profile->save();
-        }
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'profile' => new StudentProfileResource($profile->load('user'))
-        ]);
     }
 }
