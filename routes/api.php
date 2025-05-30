@@ -40,9 +40,12 @@ Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
 
 // Review Routes
-Route::post('/reviews', [ReviewController::class, 'store']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+});
+
 Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
-Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
 // ad routes 
 Route::apiResource('/ads', AdController::class);
