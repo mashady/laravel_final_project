@@ -12,6 +12,7 @@ use App\Http\Controllers\ReviewController;
 
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ChatController;
 
 
 
@@ -75,3 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
 Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
+
+
+//chat routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
+    Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+});
