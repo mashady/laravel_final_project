@@ -13,7 +13,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
-
+    use Notifiable;
     /**
      * The attributes that are mass assignable.
      *
@@ -99,5 +99,10 @@ public function studentProfile()
     public function isStudent()
     {
         return $this->role === 'student';
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
     }
 }

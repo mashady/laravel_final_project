@@ -85,5 +85,12 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-//get my notifications
-Route::middleware('auth:sanctum')->get('/notifications', [BookingController::class, 'getMyNotifications']);
+//notifications
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/notifications', [BookingController::class, 'getMyNotifications']);
+    Route::post('/notifications/{id}/mark-as-read', [BookingController::class, 'markNotificationAsRead']);
+    Route::post('/notifications/mark-all-as-read', [BookingController::class, 'markAllNotificationsAsRead']);
+    Route::get('/notifications/all', [BookingController::class, 'getNotificationCount']);
+    Route::get('/notifications/unread', [BookingController::class, 'countUnreadNotifications']);
+});

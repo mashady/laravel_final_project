@@ -10,6 +10,8 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Http\Resources\BookingResource;
 use App\Notifications\BookingStatusUpdate;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Notifications\Notifiable;
 
 class BookingController extends Controller
 {
@@ -121,6 +123,44 @@ class BookingController extends Controller
                 'notifications' => $user->unreadNotifications
             ]);
         }
-
     }
+
+    public function markNotificationAsRead($id)
+    {
+        $notification = Auth::user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return response()->json(['message' => 'Notification marked as read']);
+    }
+    public function markAllNotificationsAsRead()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $user->unreadNotifications->markAsRead();
+        return response()->json(['message' => 'All notifications marked as read']);
+    }
+    public function getNotificationCount()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $count = $user->notifications->count();
+        return response()->json(['notification_count' => $count]);
+    }
+
+    public function countUnreadNotifications()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        $count = $user->unreadNotifications->count();
+        return response()->json(['unread_count' => $count]);
+    }
+
 }
