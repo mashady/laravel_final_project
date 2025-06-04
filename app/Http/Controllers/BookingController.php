@@ -93,4 +93,34 @@ class BookingController extends Controller
 
         return response()->json(['message' => 'Batch status updated', 'data' => $booking]);
     }
+
+    public function destroy($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->delete();
+        return response()->json(['message' => 'Booking deleted successfully']);
+    }
+
+    public function getMyNotifications()
+    {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+    
+        // Get the user's notifications
+        // if no unread notifications, return a
+        if ($user->unreadNotifications->isEmpty()) {
+            return response()->json([
+                'message' => 'No unread notifications'
+            ]);
+        }
+        else {
+            return response()->json([
+                'notifications' => $user->unreadNotifications
+            ]);
+        }
+
+    }
 }

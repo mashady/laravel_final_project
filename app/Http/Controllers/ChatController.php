@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Message;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Events\MessageSent;
 
 class ChatController extends Controller
 {
@@ -33,6 +34,8 @@ class ChatController extends Controller
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
+
+        event(new MessageSent($message, $request->receiver_id));
 
         return response()->json($message);
     }

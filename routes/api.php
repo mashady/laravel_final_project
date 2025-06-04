@@ -83,3 +83,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
 });
+
+
+//get my notifications
+Route::middleware('auth:sanctum')->get('/notifications', [BookingController::class, 'getMyNotifications']);
