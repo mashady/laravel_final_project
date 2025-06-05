@@ -6,10 +6,12 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
 
 class MessageSent implements ShouldBroadcast
 {
-    use InteractsWithSockets, SerializesModels;
+
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $message;
     public $receiverId;
@@ -22,22 +24,19 @@ class MessageSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return [
-            new PrivateChannel('chat.'.$this->receiverId),
-            new PrivateChannel('chat.'.auth()->id()), // For immediate sender update
-        ];
-    }
-    
-    public function broadcastAs()
-    {
-        return 'message.sent';
+        return new PrivateChannel('chat.' . $this->receiverId);
     }
 
     public function broadcastWith()
     {
         return [
-            'message' => $this->message->load('sender'),
+            'message' => $this->message,
         ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'message.sent';
     }
 }
 

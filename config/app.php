@@ -1,6 +1,7 @@
 <?php
 
-
+use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\ServiceProvider;
 
 return [
 
@@ -125,17 +126,21 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    'providers' => [
-        // ...
-        Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        // ... other service providers
-    ],
 
-    'aliases' => [
-        // ...
-        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
-        // ... other aliases
-    ],
+    'providers' => ServiceProvider::defaultProviders()->merge([
+        // Laravel Framework Service Providers...
+        Illuminate\Auth\AuthServiceProvider::class,
+        Illuminate\Broadcasting\BroadcastServiceProvider::class,
+        Illuminate\Bus\BusServiceProvider::class,
+        Illuminate\Cache\CacheServiceProvider::class,
+        Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class
+    ])->toArray(),
+
+    // 'aliases' => [
+    //     // ...
+    //     'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
+    //     // ... other aliases
+    // ],
     'broadcasting' => [
         'default' => env('BROADCAST_DRIVER', 'pusher'),
         'connections' => [
@@ -156,6 +161,6 @@ return [
             ],
         ],
     ],
-    
+
 
 ];
