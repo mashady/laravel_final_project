@@ -577,6 +577,7 @@ class ComposerStaticInitadafb64fa238f77b4ed4a00549658475
         'App\\Notifications\\BookingStatusUpdate' => __DIR__ . '/../..' . '/app/Notifications/BookingStatusUpdate.php',
         'App\\Policies\\OwnerProfilePolicy' => __DIR__ . '/../..' . '/app/Policies/OwnerProfilePolicy.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',

@@ -127,40 +127,43 @@ return [
     ],
 
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        // Laravel Framework Service Providers...
-        Illuminate\Auth\AuthServiceProvider::class,
-        Illuminate\Broadcasting\BroadcastServiceProvider::class,
-        Illuminate\Bus\BusServiceProvider::class,
-        Illuminate\Cache\CacheServiceProvider::class,
-        Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class
-    ])->toArray(),
+// 'providers' => [
 
-    // 'aliases' => [
-    //     // ...
-    //     'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
-    //     // ... other aliases
-    // ],
-    'broadcasting' => [
-        'default' => env('BROADCAST_DRIVER', 'pusher'),
-        'connections' => [
-            'pusher' => [
-                'driver' => 'pusher',
-                'key' => env('PUSHER_APP_KEY'),
-                'secret' => env('PUSHER_APP_SECRET'),
-                'app_id' => env('PUSHER_APP_ID'),
-                'options' => [
-                    'cluster' => env('PUSHER_APP_CLUSTER'),
-                    'useTLS' => true,
-                    'encrypted' => true,
-                ],
-            ],
-            'ably' => [
-                'driver' => 'ably',
-                'key' => env('ABLY_KEY'),
-            ],
-        ],
+//     /*
+//      * Laravel Framework Service Providers...
+//      */
+//     Illuminate\Auth\AuthServiceProvider::class,
+//     Illuminate\Broadcasting\BroadcastServiceProvider::class,
+//     Illuminate\Bus\BusServiceProvider::class,
+//     Illuminate\Cache\CacheServiceProvider::class,
+//     Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+//     Illuminate\Filesystem\FilesystemServiceProvider::class,
+//     Illuminate\Hashing\HashServiceProvider::class,
+//     Illuminate\Mail\MailServiceProvider::class,
+//     Illuminate\Notifications\NotificationServiceProvider::class,
+//     Illuminate\Pagination\PaginationServiceProvider::class,
+//     Illuminate\Pipeline\PipelineServiceProvider::class,
+//     Illuminate\Queue\QueueServiceProvider::class,
+//     Illuminate\Redis\RedisServiceProvider::class,
+//     Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
+//     Illuminate\Session\SessionServiceProvider::class,
+//     Illuminate\Translation\TranslationServiceProvider::class,
+//     Illuminate\Validation\ValidationServiceProvider::class,
+//     Illuminate\View\ViewServiceProvider::class,
+
+//     /*
+//      * Application Service Providers...
+//      */
+//     App\Providers\AppServiceProvider::class,
+//     App\Providers\BroadcastServiceProvider::class,
+
+// ],
+
+
+    'aliases' => [
+        // ...
+        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
+        // ... other aliases
     ],
-
 
 ];

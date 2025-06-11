@@ -41,6 +41,7 @@ return array(
     'App\\Notifications\\BookingStatusUpdate' => $baseDir . '/app/Notifications/BookingStatusUpdate.php',
     'App\\Policies\\OwnerProfilePolicy' => $baseDir . '/app/Policies/OwnerProfilePolicy.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
+    'App\\Providers\\BroadcastServiceProvider' => $baseDir . '/app/Providers/BroadcastServiceProvider.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',
