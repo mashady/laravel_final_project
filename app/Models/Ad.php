@@ -41,6 +41,10 @@ class Ad extends Model
         return $this->hasOne(Media::class)->where('is_primary', true);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'ad_id');
+    }
     
     public function scopePublished($query)
     {

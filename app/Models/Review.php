@@ -9,7 +9,7 @@ class Review extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'owner_id', 'content'];
+    protected $fillable = ['user_id', 'owner_id', 'ad_id', 'content'];
 
     public function reviewer()
     {
@@ -26,4 +26,8 @@ class Review extends Model
     return $this->belongsTo(User::class, 'user_id');
 }
 
+    public function ad()
+    {
+        return $this->belongsTo(Ad::class, 'ad_id');
+    }
 }
