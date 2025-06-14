@@ -118,4 +118,5 @@ public function studentProfile()
     {
         return $this->subscription && $this->subscription->plan_id === $planId;
     }
+
 }

@@ -14,6 +14,7 @@ return new class extends Migration
             $table->integer('price');
             $table->string('billing_interval');
             $table->integer('duration')->default(30);
+            $table->integer('ads_Limit')->default(0);
             $table->text('features')->nullable();
             $table->timestamps();
         });
