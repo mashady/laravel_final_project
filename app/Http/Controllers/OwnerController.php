@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+ 
 use App\Http\Requests\OwnerStoreRequest;
 use App\Http\Requests\OwnerUpdadteRequest;
 use App\Models\OwnerProfile;
