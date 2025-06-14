@@ -11,7 +11,7 @@ class Ad extends Model
 
     protected $fillable = [
         'owner_id', 'title', 'type', 'picture', 'video',
-        'description', 'price', 'location', 'space'/* , 'active' */
+        'description', 'price', 'area','street','block', 'space','number_of_beds','number_of_bathrooms',/* , 'active' */
     ];
 
     public function owner()

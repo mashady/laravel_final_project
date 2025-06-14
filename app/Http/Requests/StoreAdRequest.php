@@ -23,6 +23,8 @@ class StoreAdRequest extends FormRequest
           'area' => '|string|min:0',
           'street' => '|string|max:255',
           'block' => '|string|max:255',
+          'number_of_beds' => 'integer|min:0',
+          'number_of_bathrooms' => 'integer|min:0',
             'space' => 'required|numeric|min:0',
             /* 'status' => 'required|in:active,inactive', */
             /* 'owner_id' => 'required|exists:users,id', */
