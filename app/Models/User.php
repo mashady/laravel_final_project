@@ -100,4 +100,22 @@ public function studentProfile()
     {
         return $this->role === 'student';
     }
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)
+                    ->where('active', true)
+                    ->orderByDesc('id'); // or created_at
+    }
+    
+    
+
+    public function hasActiveSubscription()
+    {
+        return $this->subscription && $this->subscription->active && $this->subscription->ends_at > now();
+    }
+
+    public function isSubscribedToPlan($planId)
+    {
+        return $this->subscription && $this->subscription->plan_id === $planId;
+    }
 }

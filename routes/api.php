@@ -13,6 +13,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PlanController;
 
 
 
@@ -85,4 +86,14 @@ Route::get('/student-profile/public/search-university', [StudentProfileControlle
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/plans', [PlanController::class, 'index']);
+    Route::post('/plans/subscribe', [PlanController::class, 'subscribeToPlan']);
+    Route::get('/plans/my-subscription', [PlanController::class, 'mySubscription']);
+    Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
+    Route::put('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
+    Route::post('/plans/{id}/re-subscribe', [PlanController::class, 'reSubscribeToPlan']);
+
 });
