@@ -25,7 +25,7 @@ class StoreAdRequest extends FormRequest
             /* 'status' => 'required|in:active,inactive', */
             /* 'owner_id' => 'required|exists:users,id', */
             'media' => 'nullable|array',
-            'media.*' => 'file|mimes:jpg,jpeg,png,mp4|max:20480',
+            /* 'media.*' => 'file|mimes:jpg,jpeg,png,mp4|max:20480', */
         ];
     }
 }

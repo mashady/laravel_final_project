@@ -28,6 +28,8 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
+        ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
     Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
     Route::post('/createowner', [OwnerController::class, 'store']);
@@ -78,3 +80,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
 Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
+Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
