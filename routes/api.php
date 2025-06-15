@@ -89,7 +89,6 @@ Route::get('/student-profile/public/search-university', [StudentProfileControlle
 
 
 
-//chat routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
@@ -107,6 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans/remove-from-cart', [PlanController::class, 'removeFromCart']);
 
 });
+
+
 Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 
 
