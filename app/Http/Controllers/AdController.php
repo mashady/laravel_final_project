@@ -73,19 +73,19 @@ class AdController extends Controller
             } */
             
             $user = Auth::user();
-            $subscription = $user->subscription()->with('plan')->first();
+            // $subscription = $user->subscription()->with('plan')->first();
 
-            if (!$subscription || !$subscription->active) {
-                return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
-            }
+            // if (!$subscription || !$subscription->active) {
+            //     return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
+            // }
         
-            $planLimit = $subscription->plan->ads_Limit;
+            // $planLimit = $subscription->plan->ads_Limit;
         
-            $userAdCount = $user->ads()->count();
+            // $userAdCount = $user->ads()->count();
         
-            if ($userAdCount >= $planLimit) {
-                return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
-            }
+            // if ($userAdCount >= $planLimit) {
+            //     return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
+            // }
 
             $ad = Ad::create($data);
             
