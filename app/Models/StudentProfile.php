@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 
 class StudentProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'picture', 'bio', 'university'];
+    protected $fillable = ['user_id', 'picture', 'bio', 'university', 'phone_number',
+    'whatsapp_number',
+    'address'];
 
     public function user()
     {

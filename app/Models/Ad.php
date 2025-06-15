@@ -11,7 +11,12 @@ class Ad extends Model
 
     protected $fillable = [
         'owner_id', 'title', 'type', 'picture', 'video',
-        'description', 'price', 'location', 'space'/* , 'active' */
+        'description', 'price', 'location', 'space',
+        'number_of_beds',
+        'number_of_bathrooms',
+        'area',
+        'street',
+        'block'
     ];
 
     public function owner()
@@ -41,9 +46,18 @@ class Ad extends Model
         return $this->hasOne(Media::class)->where('is_primary', true);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'ad_id');
+    }
     
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
     }
 }

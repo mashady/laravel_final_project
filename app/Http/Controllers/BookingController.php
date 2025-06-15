@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 use App\Http\Resources\BookingResource;
+use App\Notifications\BookingStatusUpdate;
 
 class BookingController extends Controller
 {
@@ -52,7 +53,7 @@ class BookingController extends Controller
         return response()->json($bookings);
     }
 
-    
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -66,8 +67,19 @@ class BookingController extends Controller
             'verification_notes' => $request->verification_notes,
         ]);
 
-        return response()->json(['message' => 'Booking status updated', 'data' => $booking]);
+        
+       
+        if ($booking->user) {
+            $booking->user->notify(new BookingStatusUpdate($booking));
+            return response()->json(['message' => 'Booking status updated', 'data' => $booking]);
+        }else{
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+
+        
     }
+
 
       
     public function updatePayment(Request $request, $id)
