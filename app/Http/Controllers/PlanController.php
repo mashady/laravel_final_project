@@ -209,36 +209,9 @@ class PlanController extends Controller
         ]);
     }
 
-    public function createSession(Request $request)
-    {
-        $plan = Plan::findOrFail($request->plan_id);
-        
-        $amount = $plan->price * 100;  
-
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        $session = \Stripe\Checkout\Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => ['name' => 'Applicant Subscription'],
-                    'unit_amount' => $amount,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            'success_url' => url('http://localhost:5173/success'),
-            'cancel_url' => url('/cancel'),
-        ]);
-
-        return response()->json(['sessionId' => $session->id]);
-    }
-
     public function addToCart(Request $request)
     {
         $plan = Plan::findOrFail($request->plan_id);
-    
         $cartItem = Cart::where('user_id', Auth::id())
                         ->where('plan_id', $plan->id)
                         ->first();
