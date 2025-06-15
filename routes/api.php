@@ -19,7 +19,14 @@ use App\Http\Controllers\PlanController;
 
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+    if ($user->role === 'owner') {
+        $user->load('ownerProfile');
+    } elseif ($user->role === 'student') {
+        $user->load('studentProfile');
+    }
+
+    return response()->json($user);
 })->middleware('auth:sanctum');
 
 //These are registration routes 
@@ -106,5 +113,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-
-Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
