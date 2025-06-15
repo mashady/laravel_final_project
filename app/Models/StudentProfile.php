@@ -8,6 +8,11 @@ use Illuminate\Notifications\Notifiable;
 
 class StudentProfile extends Model
 {
+    use HasFactory;
+
+    protected $fillable = ['user_id', 'picture', 'bio', 'university', 'phone_number',
+    'whatsapp_number',
+    'address'];
     use HasFactory , Notifiable;
     protected $fillable = ['user_id', 'picture', 'bio', 'university'];
 

@@ -100,6 +100,16 @@ public function studentProfile()
     {
         return $this->role === 'student';
     }
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function wishlistAds()
+{
+    return $this->belongsToMany(Ad::class, 'wishlists', 'user_id', 'ad_id')
+        ->withTimestamps();
+}
     public function subscription()
     {
         return $this->hasOne(Subscription::class)

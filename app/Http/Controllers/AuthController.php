@@ -14,44 +14,83 @@ class AuthController extends Controller
 {
     
     public function register(StoreUserRequest $request)
-    {
-        //
-        $documentPath = null;
+{
+    $documentPath = null;
+    
+    if ($request->hasFile('verification_document')) {
+        $image = $request->file('verification_document');
+        $filename = time() . '_' . Str::slug($request['name']) . '.' . $image->getClientOriginalExtension();
         
-        if ($request->hasFile('verification_document')) {
-            $image = $request->file('verification_document');
-            $filename = time() . '_' . Str::slug($request['name']) . '.' . $image->getClientOriginalExtension();
-            
-            // Check if directory exists, if not create it
-            $docsDir = public_path('documents');
-            if (!file_exists($docsDir)) {
-                mkdir($docsDir, 0755, true);
-            }
-            
-            // Move the uploaded file
-            $image->move($docsDir, $filename);
-            
-            // Create the full path for database
-            $documentPath = url('documents/' . $filename);
+        // Check if directory exists, if not create it
+        $docsDir = public_path('documents');
+        if (!file_exists($docsDir)) {
+            mkdir($docsDir, 0755, true);
+        }
+        
+        // Move the uploaded file
+        $image->move($docsDir, $filename);
+        
+        // Create the full path for database
+        $documentPath = url('documents/' . $filename);
+    }
+
+    $data = $request->only(['name', 'email', 'role', 'verification_status']);
+    $data['password'] = Hash::make($request->password);
+    $data['verification_document'] = $documentPath;
+
+    \DB::beginTransaction();
+
+    try {
+        $user = User::create($data);
+
+        switch ($user->role) {
+            case 'student':
+                $user->studentProfile()->create([
+                    'picture' => null,
+                    'bio' => null,
+                    'university' => null,
+                    'phone_number' => null,
+                    'whatsapp_number' => null,
+                    'address' => null
+                ]);
+                break;
+                
+            case 'owner':
+                $user->ownerProfile()->create([
+                    'picture' => null,
+                    'bio' => null,
+                    'phone_number' => null,
+                    'whatsapp_number' => null,
+                    'address' => null,
+                    'institution' => null,
+                    'qualification' => null
+                ]);
+                break;
+                
         }
 
-        // Build clean data array to allow access to request data and modify on request data itself
-        $data = $request->only(['name', 'email', 'role', 'verification_status']);
-        $data['password'] = Hash::make($request->password);
-        $data['verification_document'] = $documentPath;
-
-        // Store the data in the DB
-        $user = User::create($data);
+        \DB::commit();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
-            'data' => $user,
+            'data' => $user->load($user->role === 'student' ? 'studentProfile' : 'ownerProfile'),
             'token' => $token
         ], 201);
+
+    } catch (\Exception $e) {
+        // Rollback transaction on error
+        \DB::rollBack();
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration failed',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     
     public function login(Request $request)
