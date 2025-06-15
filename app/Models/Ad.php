@@ -11,12 +11,7 @@ class Ad extends Model
 
     protected $fillable = [
         'owner_id', 'title', 'type', 'picture', 'video',
-        'description', 'price', 'location', 'space',
-        'number_of_beds',
-        'number_of_bathrooms',
-        'area',
-        'street',
-        'block'
+        'description', 'price', 'area','street','block', 'space','number_of_beds','number_of_bathrooms',/* , 'active' */
     ];
 
     public function owner()
@@ -54,10 +49,5 @@ class Ad extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
-    }
-    public function wishlistedBy()
-    {
-        return $this->belongsToMany(User::class, 'wishlists')
-            ->withTimestamps();
     }
 }
