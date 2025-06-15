@@ -95,5 +95,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
     Route::put('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
     Route::post('/plans/{id}/re-subscribe', [PlanController::class, 'reSubscribeToPlan']);
+    Route::get('/plans/mycart', [PlanController::class, 'viewMYCart']);
+    Route::post('/plans/add-to-cart', [PlanController::class, 'addToCart']);
+    Route::post('/plans/remove-from-cart', [PlanController::class, 'removeFromCart']);
 
 });
