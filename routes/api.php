@@ -86,10 +86,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('/student-profile/{studentProfile}/public', [StudentProfileController::class, 'show']);
 Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
-<<<<<<< HEAD
 
 
-//chat routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
@@ -107,6 +105,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans/remove-from-cart', [PlanController::class, 'removeFromCart']);
 
 });
-=======
+
+
 Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
->>>>>>> 22295438ea44cd85c8dc242264d165b484664839
