@@ -55,4 +55,9 @@ class Ad extends Model
     {
         return $query->where('status', 'published');
     }
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
+    }
 }

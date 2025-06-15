@@ -9,6 +9,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WishlistController;
 
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
@@ -35,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/createowner', [OwnerController::class, 'store']);
     Route::post('/updateowner', [OwnerController::class, 'update']);
     Route::delete('/deleteowner/{id}', [OwnerController::class, 'destroy']);
+    Route::get('/wishlist', [WishlistController::class, 'index']);
+    Route::post('/wishlist/toggle/{ad}', [WishlistController::class, 'toggle']);
+    Route::get('/wishlist/check/{ad}', [WishlistController::class, 'check']);
 
 });
 // USer Routes
