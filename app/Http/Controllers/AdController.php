@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
 
 class AdController extends Controller
 {
@@ -71,6 +72,21 @@ class AdController extends Controller
                 $data['status'] = auth()->user()->role === 'admin' ? 'published' : 'pending';
             } */
             
+            $user = Auth::user();
+            $subscription = $user->subscription()->with('plan')->first();
+
+            if (!$subscription || !$subscription->active) {
+                return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
+            }
+        
+            $planLimit = $subscription->plan->ads_Limit;
+        
+            $userAdCount = $user->ads()->count();
+        
+            if ($userAdCount >= $planLimit) {
+                return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
+            }
+
             $ad = Ad::create($data);
             
             if ($request->hasFile('media')) {
