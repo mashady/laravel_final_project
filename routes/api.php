@@ -21,7 +21,7 @@ use App\Http\Controllers\PlanController;
 Route::get('/user', function (Request $request) {
     $user = $request->user();
     if ($user->role === 'owner') {
-        $user->load('ownerProfile');
+        $user->load(['ownerProfile', 'ads']);
     } elseif ($user->role === 'student') {
         $user->load('studentProfile');
     }
@@ -38,7 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::put('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
+    Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
     Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
