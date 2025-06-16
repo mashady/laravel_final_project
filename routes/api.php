@@ -15,6 +15,7 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PaymentController;
 
 
 
@@ -111,7 +112,5 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 
 
-Route::get('/pay/{plan}', [PlanController::class, 'pay'])->middleware('auth:sanctum');
-Route::post('/paymob/callback', [PlanController::class, 'callback']);
-
-
+Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
+Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');

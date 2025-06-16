@@ -249,53 +249,6 @@ class PlanController extends Controller
         return response()->json($cartItems);
     }
     
-
-    public function pay(Request $request, Plan $plan, PaymobService $paymob)
-    {
-        $user = Auth::user(); // A  
-        $amountCents = $plan->price * 100;
     
-        $token = $paymob->authenticate();
-        $orderId = $paymob->createOrder($token, $amountCents, $user);
-        $paymentToken = $paymob->getPaymentKey($token, $amountCents, $orderId, $user);
-        $iframeUrl = $paymob->getIframeUrl($paymentToken);
-    
-        // Optionally store a "pending" payment
-        Payment::create([
-            'user_id' => $user->id,
-            'plan_id' => $plan->id,
-            'transaction_id' => $orderId,
-            'amount_cents' => $amountCents,
-            'status' => 'pending',
-        ]);
-    
-        return redirect($iframeUrl);
-    }
-
-    public function callback(Request $request)
-{
-    // Validate HMAC if needed
-    $txn = $request->input('obj');
-    $txnId = $txn['id'];
-    $success = $txn['success'];
-    $orderId = $txn['order']['id'];
-
-    $payment = Payment::where('transaction_id', $orderId)->first();
-
-    if ($payment && $success) {
-        $payment->update(['status' => 'paid']);
-        
-        // Optionally activate plan for user
-        $user = $payment->user;
-        $user->update([
-            'plan_id' => $payment->plan_id,
-            // or create a subscription table entry
-        ]);
-    } else {
-        $payment?->update(['status' => 'failed']);
-    }
-
-    return response()->json(['message' => 'Callback received']);
-}
 
 }
