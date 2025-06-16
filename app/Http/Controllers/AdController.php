@@ -64,8 +64,8 @@ class AdController extends Controller
             DB::beginTransaction();
 
             $data = $request->validated();
-            #$data['owner_id'] = auth()->id();
-            $data['owner_id'] = 1;
+            // #$data['owner_id'] = auth()->id();
+            $data['owner_id'] = 14;
             
             // Set default status based on user role
             /* if (!isset($data['status'])) {
@@ -222,8 +222,8 @@ class AdController extends Controller
    
     protected function processMedia(array $mediaFiles, Ad $ad, int $primaryIndex = 0)
     {
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi'];
-        $maxFileSize = 10 * 1024 * 1024; 
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi', 'video/webm'];
+        $maxFileSize = 20 * 1024 * 1024; 
 
         foreach ($mediaFiles as $index => $file) {
             if (!$file->isValid()) {
