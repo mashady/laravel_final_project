@@ -20,7 +20,14 @@ use App\Http\Controllers\PaymentController;
 
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+    if ($user->role === 'owner') {
+        $user->load('ownerProfile');
+    } elseif ($user->role === 'student') {
+        $user->load('studentProfile');
+    }
+
+    return response()->json($user);
 })->middleware('auth:sanctum');
 
 //These are registration routes 
