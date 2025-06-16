@@ -15,6 +15,7 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PaymentController;
 
 
 
@@ -95,6 +96,7 @@ Route::get('/student-profile/{studentProfile}/public', [StudentProfileController
 Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
@@ -113,3 +115,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
+
+Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
+
+
+Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
+Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
