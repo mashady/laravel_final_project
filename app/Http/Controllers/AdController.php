@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AdController extends Controller
 {
@@ -65,29 +66,42 @@ class AdController extends Controller
 
             $data = $request->validated();
             // #$data['owner_id'] = auth()->id();
-            $data['owner_id'] = 14;
+            $data['owner_id'] = 6;
             
-            // Set default status based on user role
-            /* if (!isset($data['status'])) {
-                $data['status'] = auth()->user()->role === 'admin' ? 'published' : 'pending';
-            } */
             
-            $user = Auth::user();
-            // $subscription = $user->subscription()->with('plan')->first();
+            $user = User::findOrFail($data['owner_id']);
+            $subscription = $user->subscription;
 
-            // if (!$subscription || !$subscription->active) {
-            //     return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
-            // }
+            if (!$subscription || !$subscription->active) {
+                return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
+            }
         
-            // $planLimit = $subscription->plan->ads_Limit;
-        
-            // $userAdCount = $user->ads()->count();
-        
-            // if ($userAdCount >= $planLimit) {
-            //     return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
-            // }
+            $plan = $subscription->plan;
+            $expirationDate = $subscription->created_at->addDays($plan->duration);
+    
+            if (now()->greaterThan($expirationDate)) {
+                $subscription->active = false;
+                $subscription->save();
+    
+                return response()->json(['message' => 'Your subscription has expired. Please renew or upgrade.'], 403);
+            }
+    
+            if (!$subscription->active) {
+                return response()->json(['message' => 'Your subscription is not active.'], 403);
+            }
+    
+            if ($subscription->ads_remain >= $plan->ads_Limit) {
+                $subscription->active = False;
+                $subscription->save();
+    
+                return response()->json([
+                    'message' => 'You have reached the ad limit for your plan. Your subscription is now inactive.',
+                ], 403);
+            }
 
             $ad = Ad::create($data);
+
+            $subscription->increment('ads_remain');
             
             if ($request->hasFile('media')) {
                 $this->processMedia($request->file('media'), $ad, $request->get('primary_media_index', 0));
