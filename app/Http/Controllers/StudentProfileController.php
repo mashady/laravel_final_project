@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StudentProfile;
-use App\Http\Requests\StoreStudentProfileRequest;
+use App\Http\Requests\StudentProfileRequest;
 use App\Http\Requests\UpdateStudentProfileRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
