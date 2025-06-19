@@ -17,7 +17,53 @@ use App\Models\User;
 
 class AdController extends Controller
 {
-   
+       public function userAds(Request $request)
+{
+    // Get the authenticated user's ID properly
+    $userId = Auth::id();
+
+    // Validate request parameters
+    $validated = $request->validate([
+        'type' => 'sometimes|in:apartment,room,bed',
+        'min_price' => 'sometimes|numeric|min:0',
+        'max_price' => 'sometimes|numeric|min:0|gt:min_price',
+        'min_space' => 'sometimes|numeric|min:0',
+        'location' => 'sometimes|string|max:255',
+        'per_page' => 'sometimes|integer|min:1|max:100'
+    ]);
+
+    // Start building the query
+    $query = Ad::with(['owner', 'media'])
+        ->where('owner_id', $userId);  // Use the numeric user ID
+
+    // Apply filters
+    if ($request->has('type')) {
+        $query->where('type', $validated['type']);
+    }
+
+    if ($request->has('min_price')) {
+        $query->where('price', '>=', $validated['min_price']);
+    }
+
+    if ($request->has('max_price')) {
+        $query->where('price', '<=', $validated['max_price']);
+    }
+
+    if ($request->has('min_space')) {
+        $query->where('space', '>=', $validated['min_space']);
+    }
+
+    if ($request->has('location')) {
+        $query->where('location', 'LIKE', '%' . $validated['location'] . '%');
+    }
+
+    // Paginate results
+    $perPage = $request->get('per_page', 10);
+    $ads = $query->latest()->paginate($perPage);
+
+    return AdResource::collection($ads);
+}
+
     public function index(Request $request)
     {
         $query = Ad::query()->with(['owner', 'media']);
@@ -65,8 +111,7 @@ class AdController extends Controller
             DB::beginTransaction();
 
             $data = $request->validated();
-            // #$data['owner_id'] = auth()->id();
-            $data['owner_id'] = 6;
+            $data['owner_id'] = auth()->id();
             
             
             $user = User::findOrFail($data['owner_id']);
@@ -121,6 +166,7 @@ class AdController extends Controller
             ], 500);
         }
     }
+
 
     
     public function show(Ad $ad)
