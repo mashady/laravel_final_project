@@ -27,13 +27,29 @@ class AdResource extends JsonResource
             'type' => $this->type,
             'description' => $this->description,
             'price' => $this->price,
-            'location' => $this->location,
+            'street' => $this->street,
+            'area' => $this->area,
+            'block' => $this->block,
+            'number_of_beds' => $this->number_of_beds,
+            'number_of_bathrooms' => $this->number_of_bathrooms,
             'space' => $this->space,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             
-            'primary_image' => $this->getPrimaryImage(),
+            'primary_image' => $this->when($this->relationLoaded('media'), function () {
+                $primaryImage = $this->media->where('media_type', 'image')->where('is_primary', true)->first();
+                
+                return [
+                    'ad_id' => $this->id,
+                    'created_at' => $primaryImage->created_at,
+                    'file_path' => $primaryImage->file_path,
+                    'id' => $primaryImage->id,
+                    'is_primary' => $primaryImage->is_primary,
+                    'media_type' => $primaryImage->media_type,
+                    'updated_at' => $primaryImage->updated_at,
+                ];
+            }),
             'primary_video' => $this->getPrimaryVideo(),
             'media' => MediaResource::collection($this->whenLoaded('media')),
             
@@ -51,6 +67,7 @@ class AdResource extends JsonResource
                         $this->shouldShowOwnerEmail(),
                         $this->owner->email
                     ),
+                    'owner_profile' => $this->owner->ownerProfile,
                 ];
             }),
             
