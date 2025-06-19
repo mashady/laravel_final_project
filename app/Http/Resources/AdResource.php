@@ -27,12 +27,16 @@ class AdResource extends JsonResource
             'type' => $this->type,
             'description' => $this->description,
             'price' => $this->price,
-            'location' => $this->location,
+           
             'space' => $this->space,
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            
+            'number_of_beds' => $this->number_of_beds,
+            'number_of_bathrooms' => $this->number_of_bathrooms,
+            'area' => $this->area,
+            'street' => $this->street,
+            'block' => $this->block,
             'primary_image' => $this->getPrimaryImage(),
             'primary_video' => $this->getPrimaryVideo(),
             'media' => MediaResource::collection($this->whenLoaded('media')),
