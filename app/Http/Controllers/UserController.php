@@ -80,7 +80,7 @@ class UserController extends Controller
             if ($user->role === 'student') {
             $user->load('studentProfile');
             } elseif ($user->role === 'owner') {
-            $user->load('ownerProfile');
+            $user->load('ownerProfile', 'ads');
             }
         }
 

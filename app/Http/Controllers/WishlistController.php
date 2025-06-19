@@ -43,7 +43,7 @@ class WishlistController extends Controller
     public function index()
     {
         $wishlist = Auth::user()->wishlistAds()
-            ->with(['owner', 'primaryImage', 'amenities'])
+            ->with(['owner', 'owner.ownerProfile', 'primaryImage', 'amenities'])
             ->paginate(10);
             
         return response()->json([

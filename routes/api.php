@@ -15,13 +15,14 @@ use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\PaymentController;
 
 
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
     if ($user->role === 'owner') {
-        $user->load('ownerProfile');
+        $user->load(['ownerProfile', 'ads']);
     } elseif ($user->role === 'student') {
         $user->load('studentProfile');
     }
@@ -38,7 +39,10 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::put('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
+    Route::post('/ads', [AdController::class, 'store']);
+    Route::get('/myProperties', [AdController::class, 'userAds']);
+
+    Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
     Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
@@ -50,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wishlist/check/{ad}', [WishlistController::class, 'check']);
 
 });
-// USer Routes
+// User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
 
@@ -63,7 +67,10 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // ad routes 
-Route::apiResource('/ads', AdController::class);
+Route::get('/ads', [AdController::class, 'index']);
+Route::get('/ads/{ad}', [AdController::class, 'show']);
+Route::put('/ads/{ad}', [AdController::class, 'update']);
+Route::delete('/ads/{ad}', [AdController::class, 'destroy']);
 
 // Booking Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -95,6 +102,7 @@ Route::get('/student-profile/{studentProfile}/public', [StudentProfileController
 Route::get('/student-profile/public/search-university', [StudentProfileController::class, 'searchByUniversity']);
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
@@ -105,7 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans/subscribe', [PlanController::class, 'subscribeToPlan']);
     Route::get('/plans/my-subscription', [PlanController::class, 'mySubscription']);
     Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
-    Route::put('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
+    Route::post('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
     Route::post('/plans/{id}/re-subscribe', [PlanController::class, 'reSubscribeToPlan']);
     Route::get('/plans/mycart', [PlanController::class, 'viewMYCart']);
     Route::post('/plans/add-to-cart', [PlanController::class, 'addToCart']);
@@ -113,3 +121,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
+
+Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
+
+
+Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
+Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
+Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
