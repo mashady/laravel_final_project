@@ -26,9 +26,13 @@ class PaymentController extends Controller
         return response()->json(['sessionId' => $session->id]);
     }
 
-    public function addToPayment(request $request)
+    public function addToPayment(Request $request)
     {
     
+        $data = $request->validate([
+            'plan_id' => 'required|exists:plans,id',
+            'session_id' => 'required|string',
+        ]);
         $plan = Plan::findOrFail($request->plan_id);
     
         $payment = Payment::create([
