@@ -39,6 +39,9 @@ class PlanController extends Controller
             'price' => $subscription->plan->price,
             'starts_at' => $subscription->starts_at,
             'ends_at' => $subscription->ends_at,
+            'active' => $subscription->active,
+            'ads_limit' => $subscription->plan->ads_Limit,
+            'ads_remain' => $subscription->ads_remain,
         ]);
     }
 

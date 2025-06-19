@@ -16,7 +16,53 @@ use Illuminate\Support\Facades\Auth;
 
 class AdController extends Controller
 {
-   
+    public function userAds(Request $request)
+{
+    // Get the authenticated user's ID properly
+    $userId = Auth::id();
+    
+    // Validate request parameters
+    $validated = $request->validate([
+        'type' => 'sometimes|in:apartment,room,bed',
+        'min_price' => 'sometimes|numeric|min:0',
+        'max_price' => 'sometimes|numeric|min:0|gt:min_price',
+        'min_space' => 'sometimes|numeric|min:0',
+        'location' => 'sometimes|string|max:255',
+        'per_page' => 'sometimes|integer|min:1|max:100'
+    ]);
+
+    // Start building the query
+    $query = Ad::with(['owner', 'media'])
+        ->where('owner_id', $userId);  // Use the numeric user ID
+
+    // Apply filters
+    if ($request->has('type')) {
+        $query->where('type', $validated['type']);
+    }
+
+    if ($request->has('min_price')) {
+        $query->where('price', '>=', $validated['min_price']);
+    }
+
+    if ($request->has('max_price')) {
+        $query->where('price', '<=', $validated['max_price']);
+    }
+
+    if ($request->has('min_space')) {
+        $query->where('space', '>=', $validated['min_space']);
+    }
+
+    if ($request->has('location')) {
+        $query->where('location', 'LIKE', '%' . $validated['location'] . '%');
+    }
+
+    // Paginate results
+    $perPage = $request->get('per_page', 10);
+    $ads = $query->latest()->paginate($perPage);
+
+    return AdResource::collection($ads);
+}
+
     public function index(Request $request)
     {
         $query = Ad::query()->with(['owner', 'media']);
@@ -40,67 +86,41 @@ class AdController extends Controller
             $query->where('location', 'LIKE', '%' . $request->location . '%');
         }
 
-        /* if (auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role === 'admin')) {
-            if ($request->has('status') && in_array($request->status, ['pending', 'published', 'closed', 'rejected', 'cancelled'])) {
-                $query->where('status', $request->status);
-            }
-            
-            if (auth()->user()->role === 'owner' && $request->has('my_ads')) {
-                $query->where('owner_id', auth()->id());
-            }
-        } else {
-            $query->where('status', 'published');
-        } */
+        //$query->where('status', 'published'); // Keep it public unless filtered later by role
 
         $ads = $query->latest()->paginate($request->get('per_page', 10));
 
         return AdResource::collection($ads);
     }
 
-    
     public function store(StoreAdRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            $data = $request->validated();
-            // #$data['owner_id'] = auth()->id();
-            $data['owner_id'] = 14;
-            
-            // Set default status based on user role
-            /* if (!isset($data['status'])) {
-                $data['status'] = auth()->user()->role === 'admin' ? 'published' : 'pending';
-            } */
-            
-            $user = Auth::user();
-            // $subscription = $user->subscription()->with('plan')->first();
+            if (!auth()->check()) {
+                throw ValidationException::withMessages(['owner_id' => 'You need to be logged in to add ads.']);
+            }
 
-            // if (!$subscription || !$subscription->active) {
-            //     return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
-            // }
-        
-            // $planLimit = $subscription->plan->ads_Limit;
-        
-            // $userAdCount = $user->ads()->count();
-        
-            // if ($userAdCount >= $planLimit) {
-            //     return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
-            // }
+            $data = $request->validated();
+            $data['owner_id'] = auth()->id();
+
+            Log::info('Creating ad for user ID: ' . $data['owner_id']); // Debug log
 
             $ad = Ad::create($data);
-            
+
             if ($request->hasFile('media')) {
                 $this->processMedia($request->file('media'), $ad, $request->get('primary_media_index', 0));
             }
-            
+
             DB::commit();
-            
+
             return new AdResource($ad->load(['owner', 'media']));
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating ad: ' . $e->getMessage());
-            
+
             return response()->json([
                 'message' => 'Error creating ad',
                 'error' => config('app.debug') ? $e->getMessage() : 'Something went wrong'
@@ -108,36 +128,30 @@ class AdController extends Controller
         }
     }
 
-    
     public function show(Ad $ad)
     {
         return new AdResource($ad->load(['owner', 'media']));
     }
 
-    
     public function update(StoreAdRequest $request, Ad $ad)
     {
-        /* if (!$this->canModifyAd($ad)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        } */
-        
         try {
             DB::beginTransaction();
-            
+
             $ad->update($request->validated());
-            
+
             if ($request->hasFile('media')) {
                 $this->processMedia($request->file('media'), $ad, $request->get('primary_media_index', 0));
             }
-            
+
             DB::commit();
-            
+
             return new AdResource($ad->load(['owner', 'media']));
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating ad: ' . $e->getMessage());
-            
+
             return response()->json([
                 'message' => 'Error updating ad',
                 'error' => config('app.debug') ? $e->getMessage() : 'Something went wrong'
@@ -145,30 +159,25 @@ class AdController extends Controller
         }
     }
 
-    
     public function destroy(Ad $ad)
     {
-        /* if (!$this->canModifyAd($ad)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        } */
-        
         try {
             DB::beginTransaction();
-            
+
             $ad->media->each(function ($media) {
                 Storage::disk('public')->delete($media->file_path);
             });
-            
+
             $ad->delete();
-            
+
             DB::commit();
-            
+
             return response()->json(['message' => 'Ad deleted successfully']);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting ad: ' . $e->getMessage());
-            
+
             return response()->json([
                 'message' => 'Error deleting ad',
                 'error' => config('app.debug') ? $e->getMessage() : 'Something went wrong'
@@ -176,7 +185,6 @@ class AdController extends Controller
         }
     }
 
-    
     public function destroyMedia(Ad $ad, AdMedia $media)
     {
         if (!$this->canModifyAd($ad)) {
@@ -192,10 +200,10 @@ class AdController extends Controller
             $media->delete();
 
             return response()->json(['message' => 'Media deleted successfully']);
-            
+
         } catch (\Exception $e) {
             Log::error('Error deleting media: ' . $e->getMessage());
-            
+
             return response()->json([
                 'message' => 'Error deleting media',
                 'error' => config('app.debug') ? $e->getMessage() : 'Something went wrong'
@@ -203,7 +211,6 @@ class AdController extends Controller
         }
     }
 
-    
     public function updateStatus(Request $request, Ad $ad)
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
@@ -219,11 +226,10 @@ class AdController extends Controller
         return new AdResource($ad->load(['owner', 'media']));
     }
 
-   
     protected function processMedia(array $mediaFiles, Ad $ad, int $primaryIndex = 0)
     {
         $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi', 'video/webm'];
-        $maxFileSize = 20 * 1024 * 1024; 
+        $maxFileSize = 20 * 1024 * 1024;
 
         foreach ($mediaFiles as $index => $file) {
             if (!$file->isValid()) {
@@ -254,7 +260,6 @@ class AdController extends Controller
         }
     }
 
-    
     protected function canViewAd(Ad $ad): bool
     {
         if ($ad->status === 'published') {
@@ -268,7 +273,6 @@ class AdController extends Controller
         return auth()->id() === $ad->owner_id || auth()->user()->role === 'admin';
     }
 
-    
     protected function canModifyAd(Ad $ad): bool
     {
         if (!auth()->check()) {
