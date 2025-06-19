@@ -31,7 +31,7 @@ class PlanController extends Controller
             ->first();
     
         if (!$subscription) {
-            return response()->json(['message' => 'No active subscription found'], 404);
+            return response()->json(['message' => 'No active subscription found']);
         }
     
         return response()->json($subscription);
