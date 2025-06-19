@@ -68,23 +68,35 @@ class AdController extends Controller
     {
         $query = Ad::query()->with(['owner', 'media']);
 
+        if ($request->has('title') && !empty($request->title)) {
+            $query->where('title', 'LIKE', '%' . $request->title . '%');
+        }
         if ($request->has('type') && in_array($request->type, ['apartment', 'room', 'bed'])) {
             $query->where('type', $request->type);
         }
-
-        if ($request->has('min_price') && is_numeric($request->min_price)) {
-            $query->where('price', '>=', $request->min_price);
+        if ($request->has('description') && !empty($request->description)) {
+            $query->where('description', 'LIKE', '%' . $request->description . '%');
         }
-        if ($request->has('max_price') && is_numeric($request->max_price)) {
-            $query->where('price', '<=', $request->max_price);
+        if ($request->has('price') && is_numeric($request->price)) {
+            $query->where('price', $request->price);
         }
-
-        if ($request->has('min_space') && is_numeric($request->min_space)) {
-            $query->where('space', '>=', $request->min_space);
+        if ($request->has('area') && !empty($request->area)) {
+            $query->where('area', 'LIKE', '%' . $request->area . '%');
         }
-
-        if ($request->has('location') && !empty($request->location)) {
-            $query->where('location', 'LIKE', '%' . $request->location . '%');
+        if ($request->has('street') && !empty($request->street)) {
+            $query->where('street', 'LIKE', '%' . $request->street . '%');
+        }
+        if ($request->has('block') && !empty($request->block)) {
+            $query->where('block', 'LIKE', '%' . $request->block . '%');
+        }
+        if ($request->has('number_of_beds') && is_numeric($request->number_of_beds)) {
+            $query->where('number_of_beds', $request->number_of_beds);
+        }
+        if ($request->has('number_of_bathrooms') && is_numeric($request->number_of_bathrooms)) {
+            $query->where('number_of_bathrooms', $request->number_of_bathrooms);
+        }
+        if ($request->has('space') && is_numeric($request->space)) {
+            $query->where('space', $request->space);
         }
 
         /* if (auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role === 'admin')) {
