@@ -19,10 +19,8 @@ class AdController extends Controller
 {
        public function userAds(Request $request)
 {
-    // Get the authenticated user's ID properly
     $userId = Auth::id();
 
-    // Validate request parameters
     $validated = $request->validate([
         'type' => 'sometimes|in:apartment,room,bed',
         'min_price' => 'sometimes|numeric|min:0',
@@ -32,11 +30,9 @@ class AdController extends Controller
         'per_page' => 'sometimes|integer|min:1|max:100'
     ]);
 
-    // Start building the query
     $query = Ad::with(['owner', 'media'])
-        ->where('owner_id', $userId);  // Use the numeric user ID
+        ->where('owner_id', $userId);  
 
-    // Apply filters
     if ($request->has('type')) {
         $query->where('type', $validated['type']);
     }
@@ -57,7 +53,6 @@ class AdController extends Controller
         $query->where('location', 'LIKE', '%' . $validated['location'] . '%');
     }
 
-    // Paginate results
     $perPage = $request->get('per_page', 10);
     $ads = $query->latest()->paginate($perPage);
 
