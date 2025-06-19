@@ -8,6 +8,9 @@ use App\Models\Subscription;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Cart;
 
+use App\Services\PaymobService;
+use App\Models\Payment;
+
 class PlanController extends Controller
 {
     public function index()
@@ -28,15 +31,10 @@ class PlanController extends Controller
             ->first();
     
         if (!$subscription) {
-            return response()->json(['message' => 'No active subscription found'], 404);
+            return response()->json(['message' => 'No active subscription found']);
         }
     
-        return response()->json([
-            'plan' => $subscription->plan->name,
-            'price' => $subscription->plan->price,
-            'starts_at' => $subscription->starts_at,
-            'ends_at' => $subscription->ends_at,
-        ]);
+        return response()->json($subscription);
     }
 
     public function cancelSubscription()
@@ -244,6 +242,30 @@ class PlanController extends Controller
             return response()->json(['message' => 'Your cart is empty']);
         }  
         return response()->json($cartItems);
+    }
+    
+    
+
+    public function canSubscribeToFreePlan(Request $request)
+    {
+        $user = $request->user();
+    
+        // Check if user has EVER subscribed to Free Plan (plan_id = 1)
+        $hasUsedFreePlan = $user->subscription()
+            ->where('plan_id', 1)
+            ->exists();
+    
+        if ($hasUsedFreePlan) {
+            return response()->json([
+                'allowed' => false,
+                'message' => 'You have already used the Free plan. This option is no longer available.',
+            ], 403);
+        }
+    
+        return response()->json([
+            'allowed' => true,
+            'message' => 'You are allowed to subscribe to the Free plan.',
+        ]);
     }
     
 }

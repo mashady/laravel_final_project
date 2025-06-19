@@ -13,10 +13,57 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AdController extends Controller
 {
-   
+       public function userAds(Request $request)
+{
+    // Get the authenticated user's ID properly
+    $userId = Auth::id();
+
+    // Validate request parameters
+    $validated = $request->validate([
+        'type' => 'sometimes|in:apartment,room,bed',
+        'min_price' => 'sometimes|numeric|min:0',
+        'max_price' => 'sometimes|numeric|min:0|gt:min_price',
+        'min_space' => 'sometimes|numeric|min:0',
+        'location' => 'sometimes|string|max:255',
+        'per_page' => 'sometimes|integer|min:1|max:100'
+    ]);
+
+    // Start building the query
+    $query = Ad::with(['owner', 'media'])
+        ->where('owner_id', $userId);  // Use the numeric user ID
+
+    // Apply filters
+    if ($request->has('type')) {
+        $query->where('type', $validated['type']);
+    }
+
+    if ($request->has('min_price')) {
+        $query->where('price', '>=', $validated['min_price']);
+    }
+
+    if ($request->has('max_price')) {
+        $query->where('price', '<=', $validated['max_price']);
+    }
+
+    if ($request->has('min_space')) {
+        $query->where('space', '>=', $validated['min_space']);
+    }
+
+    if ($request->has('location')) {
+        $query->where('location', 'LIKE', '%' . $validated['location'] . '%');
+    }
+
+    // Paginate results
+    $perPage = $request->get('per_page', 10);
+    $ads = $query->latest()->paginate($perPage);
+
+    return AdResource::collection($ads);
+}
+
     public function index(Request $request)
     {
         $query = Ad::query()->with(['owner', 'media']);
@@ -64,30 +111,42 @@ class AdController extends Controller
             DB::beginTransaction();
 
             $data = $request->validated();
-            #$data['owner_id'] = auth()->id();
-            $data['owner_id'] = 1;
+            $data['owner_id'] = auth()->id();
             
-            // Set default status based on user role
-            /* if (!isset($data['status'])) {
-                $data['status'] = auth()->user()->role === 'admin' ? 'published' : 'pending';
-            } */
             
-            $user = Auth::user();
-            $subscription = $user->subscription()->with('plan')->first();
+            $user = User::findOrFail($data['owner_id']);
+            $subscription = $user->subscription;
 
             if (!$subscription || !$subscription->active) {
                 return response()->json(['message' => 'You need an active subscription to add ads.'], 403);
             }
         
-            $planLimit = $subscription->plan->ads_Limit;
-        
-            $userAdCount = $user->ads()->count();
-        
-            if ($userAdCount >= $planLimit) {
-                return response()->json(['message' => 'You have reached your ad limit for this plan.'], 403);
+            $plan = $subscription->plan;
+            $expirationDate = $subscription->created_at->addDays($plan->duration);
+    
+            if (now()->greaterThan($expirationDate)) {
+                $subscription->active = false;
+                $subscription->save();
+    
+                return response()->json(['message' => 'Your subscription has expired. Please renew or upgrade.'], 403);
+            }
+    
+            if (!$subscription->active) {
+                return response()->json(['message' => 'Your subscription is not active.'], 403);
+            }
+    
+            if ($subscription->ads_remain >= $plan->ads_Limit) {
+                $subscription->active = False;
+                $subscription->save();
+    
+                return response()->json([
+                    'message' => 'You have reached the ad limit for your plan. Your subscription is now inactive.',
+                ], 403);
             }
 
             $ad = Ad::create($data);
+
+            $subscription->increment('ads_remain');
             
             if ($request->hasFile('media')) {
                 $this->processMedia($request->file('media'), $ad, $request->get('primary_media_index', 0));
@@ -107,6 +166,7 @@ class AdController extends Controller
             ], 500);
         }
     }
+
 
     
     public function show(Ad $ad)
@@ -222,8 +282,8 @@ class AdController extends Controller
    
     protected function processMedia(array $mediaFiles, Ad $ad, int $primaryIndex = 0)
     {
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi'];
-        $maxFileSize = 10 * 1024 * 1024; 
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/mov', 'video/avi', 'video/webm'];
+        $maxFileSize = 20 * 1024 * 1024; 
 
         foreach ($mediaFiles as $index => $file) {
             if (!$file->isValid()) {
