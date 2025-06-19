@@ -113,7 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans/subscribe', [PlanController::class, 'subscribeToPlan']);
     Route::get('/plans/my-subscription', [PlanController::class, 'mySubscription']);
     Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
-    Route::put('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
+    Route::post('/plans/{id}/upgrade-subscribe', [PlanController::class, 'upgradeSubscription']);
     Route::post('/plans/{id}/re-subscribe', [PlanController::class, 'reSubscribeToPlan']);
     Route::get('/plans/mycart', [PlanController::class, 'viewMYCart']);
     Route::post('/plans/add-to-cart', [PlanController::class, 'addToCart']);
@@ -127,3 +127,4 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
+Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
