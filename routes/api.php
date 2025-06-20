@@ -17,7 +17,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PaymentController;
 
-
+// use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Requests\EmailVerificationRequest;
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
@@ -35,6 +36,22 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+// Email Verification routes
+
+// Verification URL does NOT require Sanctum — only 'signed'
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('http://localhost:3000/verify/success');
+})->middleware(['signed'])->name('verification.verify');
+
+// These require auth:sanctum — user must be logged in to request email again
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'Verification link sent!']);
+    })->middleware('throttle:6,1');
 });
 
 //Owner Profile routes

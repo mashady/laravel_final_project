@@ -43,6 +43,9 @@ class AuthController extends Controller
     try {
         $user = User::create($data);
 
+        
+
+
         switch ($user->role) {
             case 'student':
                 $user->studentProfile()->create([
@@ -71,13 +74,13 @@ class AuthController extends Controller
 
         \DB::commit();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Verify Email
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
             'data' => $user->load($user->role === 'student' ? 'studentProfile' : 'ownerProfile'),
-            'token' => $token
         ], 201);
 
     } catch (\Exception $e) {
@@ -112,6 +115,13 @@ class AuthController extends Controller
                 'success' => 'false',
                 'message' => 'Invalid credentials.'
             ], 401);
+        }
+
+        if (!$user->email_verified_at) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify your email before logging in.'
+            ], 403);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
