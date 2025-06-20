@@ -57,7 +57,6 @@ Route::middleware('auth:sanctum')->group(function () {
 // User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
-
 // Review Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store']);
@@ -104,8 +103,10 @@ Route::get('/student-profile/public/search-university', [StudentProfileControlle
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chat/inbox', [ChatController::class, 'inbox']);
     Route::get('/chat/{user}', [ChatController::class, 'getMessages']);
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+   
 });
 
 Route::middleware('auth:sanctum')->group(function () {
