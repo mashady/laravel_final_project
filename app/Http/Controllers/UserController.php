@@ -55,7 +55,8 @@ class UserController extends Controller
             $documentPath = url('documents/' . $fileName);
         }
 
-        $data = $request->only(['name', 'email', 'role', 'verification_status']);
+        $data = $request->only(['name', 'email', 'role']);
+        $data['verification_status'] = $request->verification_status ?? 'pending';
         $data['password'] = Hash::make($request->password);
         $data['verification_document'] = $documentPath;
 
