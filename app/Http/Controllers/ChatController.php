@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
-    public function getMessages(User $user)
+    public function getMessages(Request $request, User $user)
     {
-        $messages = Message::where(function ($q) use ($user) {
-            $q->where('sender_id', auth()->id)->where('receiver_id', $user->id);
-        })->orWhere(function ($q) use ($user) {
-            $q->where('sender_id', $user->id)->where('receiver_id', auth()->id);
+        $authUser = $request->user();
+        $messages = Message::where(function ($q) use ($user, $authUser) {
+            $q->where('sender_id', $authUser->id)->where('receiver_id', $user->id);
+        })->orWhere(function ($q) use ($user, $authUser) {
+            $q->where('sender_id', $user->id)->where('receiver_id', $authUser->id);
         })->orderBy('created_at')->get();
 
         return response()->json($messages);
@@ -23,13 +24,14 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request)
     {
+        $authUser = $request->user();
         $request->validate([
             'receiver_id' => 'required|exists:users,id',
             'message' => 'required|string',
         ]);
 
         $message = Message::create([
-            'sender_id' => auth()->id,
+            'sender_id' => $authUser->id,
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
@@ -38,4 +40,13 @@ class ChatController extends Controller
 
         return response()->json($message);
     }
+    public function inbox(Request $request)
+{
+    $authUser = $request->user();
+    $messages = Message::where('receiver_id', $authUser->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return response()->json($messages);
+}
 }
