@@ -38,7 +38,9 @@ class AdResource extends JsonResource
             'updated_at' => $this->updated_at,
             'primary_image' => $this->when($this->relationLoaded('media'), function () {
                 $primaryImage = $this->media->where('media_type', 'image')->where('is_primary', true)->first();
-                
+                if (!$primaryImage) {
+                    return null;
+                }
                 return [
                     'ad_id' => $this->id,
                     'created_at' => $primaryImage->created_at,
