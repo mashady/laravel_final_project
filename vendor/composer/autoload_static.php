@@ -553,6 +553,8 @@ class ComposerStaticInitf41e4c778afd03c36f55d2d7d1dca529
         'App\\Http\\Controllers\\StudentProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/StudentProfileController.php',
         'App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
         'App\\Http\\Controllers\\WishlistController' => __DIR__ . '/../..' . '/app/Http/Controllers/WishlistController.php',
+        'App\\Http\\Middleware\\Authenticate' => __DIR__ . '/../..' . '/app/Http/Middleware/Authenticate.php',
+        'App\\Http\\Requests\\EmailVerificationRequest' => __DIR__ . '/../..' . '/app/Http/Requests/EmailVerificationRequest.php',
         'App\\Http\\Requests\\OwnerStoreRequest' => __DIR__ . '/../..' . '/app/Http/Requests/OwnerStoreRequest.php',
         'App\\Http\\Requests\\OwnerUpdadteRequest' => __DIR__ . '/../..' . '/app/Http/Requests/OwnerUpdadteRequest.php',
         'App\\Http\\Requests\\StoreAdRequest' => __DIR__ . '/../..' . '/app/Http/Requests/StoreAdRequest.php',

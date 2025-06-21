@@ -18,6 +18,8 @@ return array(
     'App\\Http\\Controllers\\StudentProfileController' => $baseDir . '/app/Http/Controllers/StudentProfileController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
     'App\\Http\\Controllers\\WishlistController' => $baseDir . '/app/Http/Controllers/WishlistController.php',
+    'App\\Http\\Middleware\\Authenticate' => $baseDir . '/app/Http/Middleware/Authenticate.php',
+    'App\\Http\\Requests\\EmailVerificationRequest' => $baseDir . '/app/Http/Requests/EmailVerificationRequest.php',
     'App\\Http\\Requests\\OwnerStoreRequest' => $baseDir . '/app/Http/Requests/OwnerStoreRequest.php',
     'App\\Http\\Requests\\OwnerUpdadteRequest' => $baseDir . '/app/Http/Requests/OwnerUpdadteRequest.php',
     'App\\Http\\Requests\\StoreAdRequest' => $baseDir . '/app/Http/Requests/StoreAdRequest.php',

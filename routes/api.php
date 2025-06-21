@@ -39,20 +39,12 @@ Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 // Email Verification routes
+// Send email verification link
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
-// Verification URL does NOT require Sanctum — only 'signed'
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('http://localhost:3000/verify/success');
-})->middleware(['signed'])->name('verification.verify');
+// Resend email verification link
+Route::post('/email/verification-notification-guest', [AuthController::class, 'resendVerificationEmailGuest']);
 
-// These require auth:sanctum — user must be logged in to request email again
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return response()->json(['message' => 'Verification link sent!']);
-    })->middleware('throttle:6,1');
-});
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
