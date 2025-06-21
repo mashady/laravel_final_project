@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
@@ -16,6 +17,9 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RagController;
+use App\Http\Controllers\DocumentController;
+use App\Models\ChatHistory;
 
 
 
@@ -129,3 +133,11 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
 Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/documents', [RAGController::class, 'store']);
+    Route::post('/rag-query', [RAGController::class, 'query']);
+    Route::get('/chat-history', [RAGController::class, 'history']);
+});
+
