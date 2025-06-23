@@ -60,7 +60,6 @@ Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'comp
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ads', [AdController::class, 'store']);
     Route::get('/myProperties', [AdController::class, 'userAds']);
-
     Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
@@ -78,8 +77,13 @@ Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
 // Review Routes
 Route::middleware('auth:sanctum')->group(function () {
+    // Ad-centric reviews
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::get('/ads/{adId}/reviews', [ReviewController::class, 'forAd']);
+    // Owner-centric reviews
+    Route::post('/owner-reviews', [ReviewController::class, 'storeForOwner']);
+    Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
+    // Common
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });

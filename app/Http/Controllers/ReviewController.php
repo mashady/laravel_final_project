@@ -11,20 +11,18 @@ use App\Http\Resources\ReviewResource;
 class ReviewController extends Controller
 {
     
-    public function store(Request $request)
+
+    // Store review for an owner (not ad-specific)
+    public function storeForOwner(Request $request)
     {
         $request->validate([
-            'ad_id' => 'required|exists:ads,id',
+            'owner_id' => 'required|exists:users,id',
             'content' => 'required|string|max:1000',
         ]);
 
-        $ad = Ad::findOrFail($request->ad_id);
-        $ownerId = $ad->owner_id;
-
         $review = Review::create([
             'user_id' => $request->user()->id,
-            'owner_id' => $ownerId,
-            'ad_id' => $ad->id,
+            'owner_id' => $request->owner_id,
             'content' => $request->content,
         ]);
 
@@ -33,6 +31,8 @@ class ReviewController extends Controller
             'review' => new ReviewResource($review),
         ], 201);
     }
+
+
 
     public function forOwner($ownerId)
     {
