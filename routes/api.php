@@ -20,8 +20,11 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RagController;
 use App\Http\Controllers\DocumentController;
 use App\Models\ChatHistory;
+use App\Http\Controllers\GoogleSignController;
 
 
+// use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Requests\EmailVerificationRequest;
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
@@ -40,6 +43,18 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+// Email Verification routes
+// Send email verification link
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+
+// Resend email verification link
+Route::post('/email/verification-notification-guest', [AuthController::class, 'resendVerificationEmailGuest']);
+
+// Register and Login Via Google
+Route::get('/auth/google/redirect', [GoogleSignController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleSignController::class, 'handleGoogleCallback']);
+Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'completeProfile']);
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {

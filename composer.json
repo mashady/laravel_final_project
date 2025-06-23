@@ -11,6 +11,7 @@
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.21",
         "laravel/tinker": "^2.10.1",
         "openai-php/laravel": "^0.13.0",
         "stripe/stripe-php": "^17.3"
