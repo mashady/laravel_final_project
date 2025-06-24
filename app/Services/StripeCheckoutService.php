@@ -26,7 +26,7 @@ class StripeCheckoutService
             ]],
             'mode' => 'payment',
            'success_url' => url("http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}&plan_id={$plan->id}"),
-            'cancel_url' => url('http://localhost:3000/payment-cancel'),
+            'cancel_url' => url('http://localhost:3000/plans'),
         ]);
     }
 }
