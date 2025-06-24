@@ -163,3 +163,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat-history', [RAGController::class, 'history']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('coupons', CouponController::class);
+    Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
+});
+
