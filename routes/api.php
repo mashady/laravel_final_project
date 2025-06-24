@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
@@ -17,14 +16,8 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\RagController;
-use App\Http\Controllers\DocumentController;
-use App\Models\ChatHistory;
-use App\Http\Controllers\GoogleSignController;
 
 
-// use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Requests\EmailVerificationRequest;
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
@@ -44,18 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-// Email Verification routes
-// Send email verification link
-Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
-
-// Resend email verification link
-Route::post('/email/verification-notification-guest', [AuthController::class, 'resendVerificationEmailGuest']);
-
-// Register and Login Via Google
-Route::get('/auth/google/redirect', [GoogleSignController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [GoogleSignController::class, 'handleGoogleCallback']);
-Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'completeProfile']);
-
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ads', [AdController::class, 'store']);
@@ -63,7 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
-    Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
     Route::post('/createowner', [OwnerController::class, 'store']);
     Route::post('/updateowner', [OwnerController::class, 'update']);
     Route::delete('/deleteowner/{id}', [OwnerController::class, 'destroy']);
@@ -72,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wishlist/check/{ad}', [WishlistController::class, 'check']);
 
 });
+Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
+
 // User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
@@ -82,11 +64,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ads/{adId}/reviews', [ReviewController::class, 'forAd']);
     // Owner-centric reviews
     Route::post('/owner-reviews', [ReviewController::class, 'storeForOwner']);
-    Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
     // Common
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
+Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 
 // ad routes 
 Route::get('/ads', [AdController::class, 'index']);
@@ -152,11 +134,3 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
 Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
-
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/documents', [RAGController::class, 'store']);
-    Route::post('/rag-query', [RAGController::class, 'query']);
-    Route::get('/chat-history', [RAGController::class, 'history']);
-});
-
