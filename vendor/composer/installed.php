@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '61cbe87e1dbffe3151c0d61a510e1b908c3b8857',
+        'reference' => 'cdc7708ae50898e0f41ab153463dd2b135d55c55',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -406,7 +406,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '61cbe87e1dbffe3151c0d61a510e1b908c3b8857',
+            'reference' => 'cdc7708ae50898e0f41ab153463dd2b135d55c55',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -572,9 +572,9 @@
             'dev_requirement' => true,
         ),
         'nesbot/carbon' => array(
-            'pretty_version' => '3.10.0',
-            'version' => '3.10.0.0',
-            'reference' => 'c1397390dd0a7e0f11660f0ae20f753d88c1f3d9',
+            'pretty_version' => '3.10.1',
+            'version' => '3.10.1.0',
+            'reference' => '1fd1935b2d90aef2f093c5e35f7ae1257c448d00',
             'type' => 'library',
             'install_path' => __DIR__ . '/../nesbot/carbon',
             'aliases' => array(),
@@ -746,9 +746,9 @@
             'dev_requirement' => true,
         ),
         'phpunit/phpunit' => array(
-            'pretty_version' => '11.5.23',
-            'version' => '11.5.23.0',
-            'reference' => '86ebcd8a3dbcd1857d88505109b2a2b376501cde',
+            'pretty_version' => '11.5.24',
+            'version' => '11.5.24.0',
+            'reference' => '6b07ab1047155cf38f82dd691787a277782271dd',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpunit/phpunit',
             'aliases' => array(),
@@ -820,8 +820,8 @@
         'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-factory' => array(
@@ -836,8 +836,8 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-message' => array(
@@ -852,8 +852,8 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/log' => array(
