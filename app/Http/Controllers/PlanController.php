@@ -215,7 +215,7 @@ class PlanController extends Controller
                         ->first();
     
         if ($cartItem) {
-            $cartItem->increment('quantity');
+           return response()->json(['message' => 'Plan already added to cart']);
         } else {
             Cart::create([
                 'user_id' => Auth::id(),

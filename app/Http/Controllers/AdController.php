@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Media;
+use App\Http\Requests\UpdateAdRequest;
 
 class AdController extends Controller
 {
@@ -182,32 +184,49 @@ class AdController extends Controller
     }
 
     
-    public function update(StoreAdRequest $request, Ad $ad)
+    public function update(UpdateAdRequest $request, Ad $ad)
     {
-        /* if (!$this->canModifyAd($ad)) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        } */
-        
         try {
             DB::beginTransaction();
             
-            $ad->update($request->validated());
+            // Update basic fields
+            $ad->update($request->except(['media', 'existing_media']));
             
+            // Handle media updates
+            $existingMediaIds = $request->input('existing_media', []);
+            
+            // Delete any media not in the existing_media array
+            $ad->media()->whereNotIn('id', $existingMediaIds)->delete();
+            
+            // Process new uploads
             if ($request->hasFile('media')) {
-                $this->processMedia($request->file('media'), $ad, $request->get('primary_media_index', 0));
+                foreach ($request->file('media') as $file) {
+                    // Validate each file individually
+                    if ($file->getSize() > 20 * 1024 * 1024) {
+                        throw new \Exception("File too large: " . $file->getClientOriginalName());
+                    }
+                    
+                    $media = $ad->media()->create([
+                        'file_path' => $file->store('media', 'public'),
+                        'media_type' => str_starts_with($file->getMimeType(), 'image') ? 'image' : 'video'
+                    ]);
+                }
             }
             
             DB::commit();
             
-            return new AdResource($ad->load(['owner', 'media']));
+            return response()->json([
+                'success' => true,
+                'data' => new AdResource($ad->load('media'))
+            ]);
             
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating ad: ' . $e->getMessage());
             
             return response()->json([
-                'message' => 'Error updating ad',
-                'error' => config('app.debug') ? $e->getMessage() : 'Something went wrong'
+                'success' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }
@@ -344,4 +363,31 @@ class AdController extends Controller
 
         return auth()->id() === $ad->owner_id || auth()->user()->role === 'admin';
     }
+
+    public function deleteAllMedia($id)
+    {
+        $ad = Ad::findOrFail($id);
+    
+        foreach ($ad->media as $media) {
+            // Delete from disk (adjust path if necessary)
+            Storage::delete($media->file_path);
+            $media->delete();
+        }
+    
+        return response()->json(['message' => 'All media deleted successfully.']);
+    }
+
+    public function deleteOneMedia($id)
+    {
+        $media = Media::findOrFail($id);
+
+        // Delete file from storage
+        Storage::delete($media->file_path);
+        // Delete from DB
+        $media->delete();
+
+        return response()->json(['message' => 'Media deleted successfully.']);
+    }
+
+
 }

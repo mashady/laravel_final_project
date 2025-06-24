@@ -93,6 +93,9 @@ Route::get('/ads', [AdController::class, 'index']);
 Route::get('/ads/{ad}', [AdController::class, 'show']);
 Route::put('/ads/{ad}', [AdController::class, 'update']);
 Route::delete('/ads/{ad}', [AdController::class, 'destroy']);
+Route::delete('/ads/{id}/media', [AdController::class, 'deleteAllMedia']);
+Route::delete('/media/{id}', [AdController::class, 'deleteOneMedia']);
+
 
 // Booking Routes
 Route::middleware('auth:sanctum')->group(function () {
