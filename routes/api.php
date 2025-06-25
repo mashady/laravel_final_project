@@ -168,3 +168,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/plans', [PlanController::class, 'store']);
+    Route::put('/plans/{id}', [PlanController::class, 'update']);
+    Route::get('/plans', [PlanController::class, 'index']);
+});
+
