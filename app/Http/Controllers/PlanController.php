@@ -301,4 +301,10 @@ class PlanController extends Controller
         $plan->update($request->only(['name', 'price', 'duration', 'billing_interval', 'ads_Limit', 'features']));
         return response()->json(['message' => 'Plan updated successfully.', 'plan' => $plan]);
     }
+    public function destroy($id)
+    {
+        $plan = Plan::findOrFail($id);
+        $plan->delete();
+        return response()->json(['message' => 'Plan deleted successfully.']);
+    }
 }

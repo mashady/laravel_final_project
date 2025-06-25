@@ -20,30 +20,33 @@ class RagController extends Controller
         $question = trim($request->question);
         $userId = Auth::id();
 
-      
+        
         $documents = Document::searchByContent($question)->limit(3)->get();
 
-
-        $context = "";
-        if ($documents->isEmpty()) {
-             $context = $documents->pluck('content')->implode("\n---\n");
+        
+        $context = '';
+        if ($documents->isNotEmpty()) {
+            $context = $documents->pluck('content')->implode("\n---\n");
         }
 
-        $context = $documents->pluck('content')->implode("\n---\n");
-
         
-        $inputText = <<<TEXT
-Based on the following context, answer the user's question:
+        if (!empty($context)) {
+            $inputText = <<<TEXT
+    Based on the following context, answer the user's question:
 
-Context:
-$context
+    Context:
+    $context
 
-Question:
-$question
-TEXT;
+    Question:
+    $question
+    TEXT;
+        } else {
+           
+            $inputText = $question;
+        }
 
         try {
-           
+            
             $response = Http::post(
                 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . config('services.gemini.key'),
                 [
@@ -56,34 +59,32 @@ TEXT;
                     ]
                 ]
             );
-            
 
             $data = $response->json();
 
-            
             $answer = data_get($data, 'candidates.0.content.parts.0.text');
 
             if (!$answer) {
-              
                 return response()->json([
                     'answer' => 'Failed to get a valid response from Gemini.',
                     'error' => $data,
                 ], 500);
             }
 
-           
-            ChatHistory::create([
-                'user_id' => $userId,
-                'question' => $question,
-                'answer' => $answer,
-                'sources' => $documents->pluck('title'),
-            ]);
-
             
+            if ($userId) {
+                ChatHistory::create([
+                    'user_id' => $userId,
+                    'question' => $question,
+                    'answer' => $answer,
+                    'sources' => $documents->pluck('title'),
+                ]);
+            }
+
             return response()->json(
                 [
                     'answer' => $answer,
-                    'source' => 'New Home',
+                    'source' => 'Gemini',
                 ],
                 200,
                 [
@@ -91,14 +92,13 @@ TEXT;
                 ]
             );
         } catch (\Exception $e) {
-           
-
             return response()->json([
                 'answer' => 'Failed to process your request.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
     
 
     public function history(Request $request)
