@@ -16,6 +16,12 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RagController;
+use App\Http\Controllers\DocumentController;
+use App\Models\ChatHistory;
+use App\Http\Controllers\GoogleSignController;
+
+use App\Http\Controllers\PasswordResetController;
 
 
 
@@ -36,6 +42,23 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+// Email Verification routes
+// Send email verification link
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+
+// Resend email verification link
+Route::post('/email/verification-notification-guest', [AuthController::class, 'resendVerificationEmailGuest']);
+
+// Register and Login Via Google
+Route::get('/auth/google/redirect', [GoogleSignController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleSignController::class, 'handleGoogleCallback']);
+Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'completeProfile']);
+
+// Reset Password routes
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
