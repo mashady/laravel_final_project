@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
             //
             'name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[\pL\s\-\.\']+$/u'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'min:8', 'max:128'],
+            'password' => ['required', 'confirmed', 'min:12', 'max:50', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,50}$/'],
             'role' => ['required', 'string', Rule::in(['admin', 'owner', 'student'])],
             'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified'])],
             'verification_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
@@ -50,9 +50,10 @@ class StoreUserRequest extends FormRequest
             'email.unique' => 'This email address is already registered. Please use a different email or try logging in.',
             
             'password.required' => 'A password is required.',
+            'password.min' => 'The password must be at least 12 characters long.',
+            'password.max' => 'The password cannot exceed 50 characters.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'password.confirmed' => 'The password confirmation does not match. Please confirm your password.',
-            'password.min' => 'The password must be at least 8 characters long.',
-            'password.max' => 'The password cannot exceed 128 characters.',
             
             'role.required' => 'Please select a user role.',
             'role.string' => 'The role must be a valid text format.',
