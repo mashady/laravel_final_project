@@ -156,10 +156,9 @@ Route::post('/create-checkout-session', [PaymentController::class, 'createSessio
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
 Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
 
-
+Route::post('/rag-query', [RAGController::class, 'query']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents', [RAGController::class, 'store']);
-    Route::post('/rag-query', [RAGController::class, 'query']);
     Route::get('/chat-history', [RAGController::class, 'history']);
 });
 
