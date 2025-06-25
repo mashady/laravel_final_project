@@ -604,6 +604,7 @@ class ComposerStaticInitf41e4c778afd03c36f55d2d7d1dca529
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\GoogleSignController' => __DIR__ . '/../..' . '/app/Http/Controllers/GoogleSignController.php',
         'App\\Http\\Controllers\\OwnerController' => __DIR__ . '/../..' . '/app/Http/Controllers/OwnerController.php',
+        'App\\Http\\Controllers\\PasswordResetController' => __DIR__ . '/../..' . '/app/Http/Controllers/PasswordResetController.php',
         'App\\Http\\Controllers\\PaymentController' => __DIR__ . '/../..' . '/app/Http/Controllers/PaymentController.php',
         'App\\Http\\Controllers\\PlanController' => __DIR__ . '/../..' . '/app/Http/Controllers/PlanController.php',
         'App\\Http\\Controllers\\RagController' => __DIR__ . '/../..' . '/app/Http/Controllers/RagController.php',

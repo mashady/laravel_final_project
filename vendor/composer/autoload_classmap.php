@@ -13,6 +13,7 @@ return array(
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\GoogleSignController' => $baseDir . '/app/Http/Controllers/GoogleSignController.php',
     'App\\Http\\Controllers\\OwnerController' => $baseDir . '/app/Http/Controllers/OwnerController.php',
+    'App\\Http\\Controllers\\PasswordResetController' => $baseDir . '/app/Http/Controllers/PasswordResetController.php',
     'App\\Http\\Controllers\\PaymentController' => $baseDir . '/app/Http/Controllers/PaymentController.php',
     'App\\Http\\Controllers\\PlanController' => $baseDir . '/app/Http/Controllers/PlanController.php',
     'App\\Http\\Controllers\\RagController' => $baseDir . '/app/Http/Controllers/RagController.php',
