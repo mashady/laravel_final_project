@@ -22,6 +22,8 @@ use App\Http\Controllers\DocumentController;
 use App\Models\ChatHistory;
 use App\Http\Controllers\GoogleSignController;
 
+use App\Http\Controllers\PasswordResetController;
+
 
 // use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Requests\EmailVerificationRequest;
@@ -55,6 +57,11 @@ Route::post('/email/verification-notification-guest', [AuthController::class, 'r
 Route::get('/auth/google/redirect', [GoogleSignController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleSignController::class, 'handleGoogleCallback']);
 Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'completeProfile']);
+
+// Reset Password routes
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+
 
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
