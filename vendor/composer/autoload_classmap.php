@@ -28,6 +28,7 @@ return array(
     'App\\Http\\Requests\\StoreReviewRequest' => $baseDir . '/app/Http/Requests/StoreReviewRequest.php',
     'App\\Http\\Requests\\StoreUserRequest' => $baseDir . '/app/Http/Requests/StoreUserRequest.php',
     'App\\Http\\Requests\\StudentProfileRequest' => $baseDir . '/app/Http/Requests/StudentProfileRequest.php',
+    'App\\Http\\Requests\\UpdateAdRequest' => $baseDir . '/app/Http/Requests/UpdateAdRequest.php',
     'App\\Http\\Requests\\UpdateStudentProfileRequest' => $baseDir . '/app/Http/Requests/UpdateStudentProfileRequest.php',
     'App\\Http\\Requests\\UpdateUserRequest' => $baseDir . '/app/Http/Requests/UpdateUserRequest.php',
     'App\\Http\\Resources\\AdResource' => $baseDir . '/app/Http/Resources/AdResource.php',

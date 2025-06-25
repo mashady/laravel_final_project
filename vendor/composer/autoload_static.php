@@ -619,6 +619,7 @@ class ComposerStaticInitf41e4c778afd03c36f55d2d7d1dca529
         'App\\Http\\Requests\\StoreReviewRequest' => __DIR__ . '/../..' . '/app/Http/Requests/StoreReviewRequest.php',
         'App\\Http\\Requests\\StoreUserRequest' => __DIR__ . '/../..' . '/app/Http/Requests/StoreUserRequest.php',
         'App\\Http\\Requests\\StudentProfileRequest' => __DIR__ . '/../..' . '/app/Http/Requests/StudentProfileRequest.php',
+        'App\\Http\\Requests\\UpdateAdRequest' => __DIR__ . '/../..' . '/app/Http/Requests/UpdateAdRequest.php',
         'App\\Http\\Requests\\UpdateStudentProfileRequest' => __DIR__ . '/../..' . '/app/Http/Requests/UpdateStudentProfileRequest.php',
         'App\\Http\\Requests\\UpdateUserRequest' => __DIR__ . '/../..' . '/app/Http/Requests/UpdateUserRequest.php',
         'App\\Http\\Resources\\AdResource' => __DIR__ . '/../..' . '/app/Http/Resources/AdResource.php',
