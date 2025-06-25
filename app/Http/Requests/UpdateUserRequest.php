@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
             //
             'name' => ['sometimes', 'required', 'string', 'min:3', 'max:100', 'regex:/^[\pL\s\-\.\']+$/u'],
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255'],
-            'password' => ['sometimes', 'confirmed', 'min:8', 'max:128'],
+            'password' => ['sometimes', 'confirmed', 'min:12', 'max:50', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,50}$/'],
             'role' => ['sometimes', 'required', 'string', Rule::in(['admin', 'owner', 'student'])],
             'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified'])],
             'verification_document' => ['sometimes', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
@@ -56,8 +56,9 @@ class UpdateUserRequest extends FormRequest
             
             // Password validation messages
             'password.confirmed' => 'The password confirmation does not match. Please confirm your password.',
-            'password.min' => 'The password must be at least 8 characters long.',
-            'password.max' => 'The password cannot exceed 128 characters.',
+            'password.min' => 'The password must be at least 12 characters long.',
+            'password.max' => 'The password cannot exceed 50 characters.',
+            'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             
             // Role validation messages
             'role.string' => 'The role must be a valid text format.',
