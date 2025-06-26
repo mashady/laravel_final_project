@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Media;
 use App\Http\Requests\UpdateAdRequest;
+use App\Services\MapboxService;
 
 class AdController extends Controller
 {
@@ -388,6 +389,59 @@ class AdController extends Controller
 
         return response()->json(['message' => 'Media deleted successfully.']);
     }
+
+public function nearUniversity(Request $request)
+{
+    $request->validate([
+        'university' => 'required|string',
+        'radius' => 'sometimes|numeric|min:1|max:20'
+    ]);
+
+    $universityLocation = MapboxService::geocodeAddress($request->university);
+
+    if (!$universityLocation) {
+        return response()->json(['error' => 'University location not found'], 404);
+    }
+
+    $radius = 50;
+
+    // Step 1: Raw distance calculation
+    $rawDistanceSql = "
+        *, 
+        (6371 * acos(
+            cos(radians(?)) * 
+            cos(radians(latitude)) * 
+            cos(radians(longitude) - radians(?)) + 
+            sin(radians(?)) * 
+            sin(radians(latitude))
+        )) AS distance
+    ";
+
+    // Step 2: Create a subquery with distance as alias
+    $subQuery = DB::table('ads')
+        ->selectRaw($rawDistanceSql, [
+            $universityLocation['latitude'],
+            $universityLocation['longitude'],
+            $universityLocation['latitude'],
+        ]);
+
+    // Step 3: Use the subquery and filter on distance
+    $properties = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+        ->mergeBindings($subQuery)
+        ->where('distance', '<', $radius)
+        ->orderBy('distance')
+        ->get();
+
+    return response()->json([
+        'properties' => $properties,
+        'university' => [
+            'latitude' => $universityLocation['latitude'],
+            'longitude' => $universityLocation['longitude'],
+            'name' => $request->university,
+        ]
+    ]);
+}
+
 
 
 }
