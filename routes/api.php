@@ -167,3 +167,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat-history', [RAGController::class, 'history']);
 });
 
+Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
