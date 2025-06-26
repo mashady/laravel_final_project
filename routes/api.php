@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OwnerController;
@@ -22,9 +21,9 @@ use App\Http\Controllers\DocumentController;
 use App\Models\ChatHistory;
 use App\Http\Controllers\GoogleSignController;
 
+use App\Http\Controllers\PasswordResetController;
 
-// use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Requests\EmailVerificationRequest;
+
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
@@ -56,6 +55,11 @@ Route::get('/auth/google/redirect', [GoogleSignController::class, 'redirectToGoo
 Route::get('/auth/google/callback', [GoogleSignController::class, 'handleGoogleCallback']);
 Route::post('/auth/google/complete-profile', [GoogleSignController::class, 'completeProfile']);
 
+// Reset Password routes
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+
+
 //Owner Profile routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ads', [AdController::class, 'store']);
@@ -73,6 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
+
+
 // User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
@@ -87,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
+Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 
 // ad routes 
@@ -157,13 +164,13 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
 
-
+Route::post('/rag-query', [RAGController::class, 'query']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/documents', [RAGController::class, 'store']);
-    Route::post('/rag-query', [RAGController::class, 'query']);
     Route::get('/chat-history', [RAGController::class, 'history']);
 });
 
+Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('coupons', CouponController::class);
     Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
