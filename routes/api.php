@@ -63,7 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
-    Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
+
     Route::post('/createowner', [OwnerController::class, 'store']);
     Route::post('/updateowner', [OwnerController::class, 'update']);
     Route::delete('/deleteowner/{id}', [OwnerController::class, 'destroy']);
@@ -72,6 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wishlist/check/{ad}', [WishlistController::class, 'check']);
 
 });
+Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
 // User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
 Route::apiResource('users', UserController::class);
@@ -82,11 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ads/{adId}/reviews', [ReviewController::class, 'forAd']);
     // Owner-centric reviews
     Route::post('/owner-reviews', [ReviewController::class, 'storeForOwner']);
-    Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
     // Common
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
+Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 
 // ad routes 
 Route::get('/ads', [AdController::class, 'index']);
@@ -145,6 +146,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/plans/mycart', [PlanController::class, 'viewMYCart']);
     Route::post('/plans/add-to-cart', [PlanController::class, 'addToCart']);
     Route::post('/plans/remove-from-cart', [PlanController::class, 'removeFromCart']);
+    Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
 
 });
 
@@ -154,7 +156,6 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
-Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -171,6 +172,6 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans', [PlanController::class, 'store']);
     Route::put('/plans/{id}', [PlanController::class, 'update']);
-    Route::get('/plans', [PlanController::class, 'index']);
 });
 
+Route::get('/plans', [PlanController::class, 'index']);

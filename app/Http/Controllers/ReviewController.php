@@ -20,6 +20,15 @@ class ReviewController extends Controller
             'content' => 'required|string|max:1000',
         ]);
 
+        $existing = Review::where('user_id', $request->user()->id)
+            ->where('owner_id', $request->owner_id)
+            ->first();
+        if ($existing) {
+            return response()->json([
+                'message' => 'You have already reviewed this owner.'
+            ], 409);
+        }
+
         $review = Review::create([
             'user_id' => $request->user()->id,
             'owner_id' => $request->owner_id,
