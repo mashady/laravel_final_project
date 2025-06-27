@@ -249,23 +249,16 @@ class PlanController extends Controller
     public function canSubscribeToFreePlan(Request $request)
     {
         $user = $request->user();
-    
-        // Check if user has EVER subscribed to Free Plan (plan_id = 1)
         $hasUsedFreePlan = $user->subscription()
             ->where('plan_id', 1)
             ->exists();
     
-        if ($hasUsedFreePlan) {
-            return response()->json([
-                'allowed' => false,
-                'message' => 'You have already used the Free plan. This option is no longer available.',
-            ], 403);
-        }
-    
         return response()->json([
-            'allowed' => true,
-            'message' => 'You are allowed to subscribe to the Free plan.',
-        ]);
+            'allowed' => !$hasUsedFreePlan,
+            'message' => $hasUsedFreePlan
+                ? 'You have already used the Free plan.'
+                : 'You are allowed to subscribe.',
+        ], $hasUsedFreePlan ? 403 : 200);
     }
     
 }
