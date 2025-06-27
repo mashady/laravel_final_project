@@ -139,9 +139,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
    
 });
-
+Route::get('/plans', [PlanController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/plans', [PlanController::class, 'index']);
+  
     Route::post('/plans/subscribe', [PlanController::class, 'subscribeToPlan']);
     Route::get('/plans/my-subscription', [PlanController::class, 'mySubscription']);
     Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
