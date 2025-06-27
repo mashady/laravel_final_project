@@ -7,7 +7,14 @@ use App\Models\Subscription;
 
 class Plan extends Model
 {
-    protected $fillable = ['name', 'price', 'billing_interval', 'duration', 'features'];
+    protected $fillable = [
+        'name',
+        'price',
+        'billing_interval',
+        'duration',
+        'ads_Limit',
+        'features'
+    ];
 
     public function subscriptions()
     {
