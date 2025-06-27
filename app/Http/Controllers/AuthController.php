@@ -77,6 +77,9 @@ class AuthController extends Controller
             // Verify Email
             $user->sendEmailVerificationNotification();
 
+            // Notify verify status is pending
+            $user->notify(new \App\Notifications\VerificationStatusChanged('pending'));
+
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',
