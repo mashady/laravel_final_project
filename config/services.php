@@ -45,5 +45,9 @@ return [
     'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'mapbox' => [
+        'token' => env('MAPBOX_TOKEN'),
+    ],
+
 
 ];
