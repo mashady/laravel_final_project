@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\MapboxService;
 
 class Ad extends Model
 {
@@ -16,8 +17,32 @@ class Ad extends Model
         'number_of_bathrooms',
         'area',
         'street',
-        'block'
+        'block',
+        'latitude','longitude'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($property) {
+            if ($property->isDirty(['area', 'street', 'block'])) {
+                $address = implode(', ', array_filter([
+                    $property->block,
+                    $property->street,
+                    $property->area
+                ]));
+                
+                if (!empty($address)) {
+                    $coordinates = MapboxService::geocodeAddress($address);
+                    if ($coordinates) {
+                        $property->latitude = $coordinates['latitude'];
+                        $property->longitude = $coordinates['longitude'];
+                    }
+                }
+            }
+        });
+    }
 
     public function owner()
     {
