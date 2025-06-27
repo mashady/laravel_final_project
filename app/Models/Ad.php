@@ -85,4 +85,10 @@ class Ad extends Model
         return $this->belongsToMany(User::class, 'wishlists')
             ->withTimestamps();
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'ad_id');
+    }
+    
 }

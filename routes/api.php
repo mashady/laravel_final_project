@@ -22,6 +22,7 @@ use App\Models\ChatHistory;
 use App\Http\Controllers\GoogleSignController;
 
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\CommentController;
 
 
 
@@ -168,3 +169,12 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
+
+
+Route::get('/ads/{ad}/comments', [CommentController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/ads/{property}/comments', [CommentController::class, 'store']);
+    Route::put('/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+});
+
