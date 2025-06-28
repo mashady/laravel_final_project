@@ -24,7 +24,7 @@ use App\Http\Controllers\GoogleSignController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CommentController;
 
-
+use App\Http\Controllers\ContactController;
 
 Route::get('/user', function (Request $request) {
     $user = $request->user();
@@ -193,3 +193,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 Route::get('/all-payments', [PaymentController::class, 'showPaymentForm']);
+
+// Contact Us Route
+Route::post('/contact', [ContactController::class, 'send']);
+
+
