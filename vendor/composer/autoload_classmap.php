@@ -6831,6 +6831,7 @@ return array(
     'Symfony\\Component\\HttpKernel\\Fragment\\RoutableFragmentRenderer' => $vendorDir . '/symfony/http-kernel/Fragment/RoutableFragmentRenderer.php',
     'Symfony\\Component\\HttpKernel\\Fragment\\SsiFragmentRenderer' => $vendorDir . '/symfony/http-kernel/Fragment/SsiFragmentRenderer.php',
     'Symfony\\Component\\HttpKernel\\HttpCache\\AbstractSurrogate' => $vendorDir . '/symfony/http-kernel/HttpCache/AbstractSurrogate.php',
+    'Symfony\\Component\\HttpKernel\\HttpCache\\CacheWasLockedException' => $vendorDir . '/symfony/http-kernel/HttpCache/CacheWasLockedException.php',
     'Symfony\\Component\\HttpKernel\\HttpCache\\Esi' => $vendorDir . '/symfony/http-kernel/HttpCache/Esi.php',
     'Symfony\\Component\\HttpKernel\\HttpCache\\HttpCache' => $vendorDir . '/symfony/http-kernel/HttpCache/HttpCache.php',
     'Symfony\\Component\\HttpKernel\\HttpCache\\ResponseCacheStrategy' => $vendorDir . '/symfony/http-kernel/HttpCache/ResponseCacheStrategy.php',
