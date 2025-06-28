@@ -43,7 +43,7 @@ class AdResource extends JsonResource
                 }
                 return [
                     'ad_id' => $this->id,
-                    'created_at' => $primaryImage->created_at,
+                    // 'created_at' => $primaryImage->created_at,
                     'file_path' => $primaryImage->file_path,
                     'id' => $primaryImage->id,
                     'is_primary' => $primaryImage->is_primary,

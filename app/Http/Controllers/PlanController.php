@@ -261,4 +261,37 @@ class PlanController extends Controller
         ], $hasUsedFreePlan ? 403 : 200);
     }
     
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'duration' => 'required|integer|min:1',
+            'billing_interval' => 'required|string|max:255',
+            'ads_Limit' => 'required|integer|min:0', 
+            'features' => 'nullable|string',
+        ], [
+            'ads_Limit.required' => 'The ads limit field is required.',
+        ]);
+
+        $plan = Plan::create($request->only(['name', 'price', 'duration', 'billing_interval', 'ads_Limit', 'features']));
+        return response()->json(['message' => 'Plan created successfully.', 'plan' => $plan], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $plan = Plan::findOrFail($id);
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'price' => 'sometimes|required|numeric|min:0',
+            'duration' => 'sometimes|required|integer|min:1',
+            'billing_interval' => 'sometimes|required|string|max:255',
+            'ads_Limit' => 'sometimes|required|integer|min:0', 
+            'features' => 'nullable|string',
+        ], [
+            'ads_Limit.required' => 'The ads limit field is required.',
+        ]);
+        $plan->update($request->only(['name', 'price', 'duration', 'billing_interval', 'ads_Limit', 'features']));
+        return response()->json(['message' => 'Plan updated successfully.', 'plan' => $plan]);
+    }
 }

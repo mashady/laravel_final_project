@@ -111,6 +111,8 @@ class UserController extends Controller
             ], 404);
         }
 
+        // Initialize verification status update flag
+        $verificationStatusUpdated = false;
         // Get all validated data from the request
         $validatedData = $request->validated();
 
@@ -156,6 +158,10 @@ class UserController extends Controller
                     // Hash password before saving
                     $user->password = Hash::make($value);
                 } else {
+                    if ($key === 'verification_status' && $user->$key !== $value) {
+                        $verificationStatusUpdated = true;
+                    }
+
                     $user->$key = $value;
                 }
             }
@@ -163,6 +169,10 @@ class UserController extends Controller
 
         // Save all changes
         $user->save();
+        // If verification status was updated, we can handle any additional logic here
+        if ($verificationStatusUpdated) {
+            $user->notify(new \App\Notifications\VerificationStatusChanged($user->verification_status));
+        }
 
         return response()->json([
             'success' => true,
