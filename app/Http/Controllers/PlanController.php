@@ -249,9 +249,9 @@ class PlanController extends Controller
     public function canSubscribeToFreePlan(Request $request)
     {
         $user = $request->user();
-        $hasUsedFreePlan = $user->subscription()
-            ->where('plan_id', 1)
-            ->exists();
+        $hasUsedFreePlan = $user->subscriptions()
+        ->where('plan_id', 1)
+        ->exists();
     
         return response()->json([
             'allowed' => !$hasUsedFreePlan,
