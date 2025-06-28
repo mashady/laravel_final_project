@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Media;
 use App\Http\Requests\UpdateAdRequest;
+use App\Services\MapboxService;
 
 class AdController extends Controller
 {
@@ -74,8 +75,11 @@ class AdController extends Controller
         if ($request->has('description') && !empty($request->description)) {
             $query->where('description', 'LIKE', '%' . $request->description . '%');
         }
-        if ($request->has('price') && is_numeric($request->price)) {
-            $query->where('price', $request->price);
+        if ($request->has('min_price') && is_numeric($request->min_price)) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->has('max_price') && is_numeric($request->max_price)) {
+            $query->where('price', '<=', $request->max_price);
         }
         if ($request->has('area') && !empty($request->area)) {
             $query->where('area', 'LIKE', '%' . $request->area . '%');
@@ -92,23 +96,43 @@ class AdController extends Controller
         if ($request->has('number_of_bathrooms') && is_numeric($request->number_of_bathrooms)) {
             $query->where('number_of_bathrooms', $request->number_of_bathrooms);
         }
+        if ($request->has('min_space') && is_numeric($request->min_space)) {
+            $query->where('space', '>=', $request->min_space);
+        }
+        if ($request->has('max_space') && is_numeric($request->max_space)) {
+            $query->where('space', '<=', $request->max_space);
+        }
         if ($request->has('space') && is_numeric($request->space)) {
             $query->where('space', $request->space);
         }
+       
+      
+        
+    
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDir = $request->get('sort_dir', 'desc');
+        $allowedSorts = ['created_at', 'price', 'space', 'number_of_beds', 'number_of_bathrooms'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        if (!in_array(strtolower($sortDir), ['asc', 'desc'])) {
+            $sortDir = 'desc';
+        }
+        $query->orderBy($sortBy, $sortDir);
 
-        /* if (auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role === 'admin')) {
-            if ($request->has('status') && in_array($request->status, ['pending', 'published', 'closed', 'rejected', 'cancelled'])) {
-                $query->where('status', $request->status);
-            }
-            
-            if (auth()->user()->role === 'owner' && $request->has('my_ads')) {
-                $query->where('owner_id', auth()->id());
-            }
-        } else {
-            $query->where('status', 'published');
-        } */
+        if ($request->has('q') && !empty($request->q)) {
+            $keywords = preg_split('/\s+/', $request->q);
+            $query->where(function($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $q->orWhere('title', 'ILIKE', "%{$word}%")
+                      ->orWhere('description', 'ILIKE', "%{$word}%")
+                      ->orWhere('location', 'ILIKE', "%{$word}%");
+                }
+            });
+        }
 
-        $ads = $query->latest()->paginate($request->get('per_page', 10));
+        $ads = $query->paginate($request->get('per_page', 10));
 
         return AdResource::collection($ads);
     }
@@ -388,6 +412,59 @@ class AdController extends Controller
 
         return response()->json(['message' => 'Media deleted successfully.']);
     }
+
+public function nearUniversity(Request $request)
+{
+    $request->validate([
+        'university' => 'required|string',
+        'radius' => 'sometimes|numeric|min:1|max:20'
+    ]);
+
+    $universityLocation = MapboxService::geocodeAddress($request->university);
+
+    if (!$universityLocation) {
+        return response()->json(['error' => 'University location not found'], 404);
+    }
+
+    $radius = 50;
+
+    // Step 1: Raw distance calculation
+    $rawDistanceSql = "
+        *, 
+        (6371 * acos(
+            cos(radians(?)) * 
+            cos(radians(latitude)) * 
+            cos(radians(longitude) - radians(?)) + 
+            sin(radians(?)) * 
+            sin(radians(latitude))
+        )) AS distance
+    ";
+
+    // Step 2: Create a subquery with distance as alias
+    $subQuery = DB::table('ads')
+        ->selectRaw($rawDistanceSql, [
+            $universityLocation['latitude'],
+            $universityLocation['longitude'],
+            $universityLocation['latitude'],
+        ]);
+
+    // Step 3: Use the subquery and filter on distance
+    $properties = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+        ->mergeBindings($subQuery)
+        ->where('distance', '<', $radius)
+        ->orderBy('distance')
+        ->get();
+
+    return response()->json([
+        'properties' => $properties,
+        'university' => [
+            'latitude' => $universityLocation['latitude'],
+            'longitude' => $universityLocation['longitude'],
+            'name' => $request->university,
+        ]
+    ]);
+}
+
 
 
 }

@@ -3,11 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-<<<<<<< HEAD
-        'reference' => 'eec7fcd7587ca8ab81cf574b91829f17f2c7e7f7',
-=======
-        'reference' => '1f33f3c4245087efbe8fa26fd0f3749302262942',
->>>>>>> 52a17c30bd4e9e8b89bedb2b837b7c3e8efe5d79
+        'reference' => '2533f2cdee552f7bc23943b247aeaa47231e127a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -419,11 +415,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-<<<<<<< HEAD
-            'reference' => 'eec7fcd7587ca8ab81cf574b91829f17f2c7e7f7',
-=======
-            'reference' => '1f33f3c4245087efbe8fa26fd0f3749302262942',
->>>>>>> 52a17c30bd4e9e8b89bedb2b837b7c3e8efe5d79
+            'reference' => '2533f2cdee552f7bc23943b247aeaa47231e127a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -808,9 +800,9 @@
             'dev_requirement' => true,
         ),
         'phpunit/phpunit' => array(
-            'pretty_version' => '11.5.24',
-            'version' => '11.5.24.0',
-            'reference' => '6b07ab1047155cf38f82dd691787a277782271dd',
+            'pretty_version' => '11.5.25',
+            'version' => '11.5.25.0',
+            'reference' => '864ab32b3ff52058f917c5b19b3cef821e4a4f1b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpunit/phpunit',
             'aliases' => array(),
@@ -977,9 +969,9 @@
             'dev_requirement' => false,
         ),
         'ramsey/uuid' => array(
-            'pretty_version' => '4.8.1',
-            'version' => '4.8.1.0',
-            'reference' => 'fdf4dd4e2ff1813111bd0ad58d7a1ddbb5b56c28',
+            'pretty_version' => '4.9.0',
+            'version' => '4.9.0.0',
+            'reference' => '4e0e23cc785f0724a0e838279a9eb03f28b092a0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../ramsey/uuid',
             'aliases' => array(),
@@ -988,7 +980,7 @@
         'rhumsaa/uuid' => array(
             'dev_requirement' => false,
             'replaced' => array(
-                0 => '4.8.1',
+                0 => '4.9.0',
             ),
         ),
         'sebastian/cli-parser' => array(

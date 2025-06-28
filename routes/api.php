@@ -22,6 +22,7 @@ use App\Models\ChatHistory;
 use App\Http\Controllers\GoogleSignController;
 
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\CommentController;
 
 
 
@@ -67,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{user}/update-with-profile', [UserController::class, 'updateWithProfile'])
         ->name('users.updateWithProfile');
     Route::get('/owners', [OwnerController::class, 'index']);
+
     Route::post('/createowner', [OwnerController::class, 'store']);
     Route::post('/updateowner', [OwnerController::class, 'update']);
     Route::delete('/deleteowner/{id}', [OwnerController::class, 'destroy']);
@@ -76,6 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 Route::get('/oneowner/{id}', [OwnerController::class, 'show']);
+
 
 // User Routes
 Route::post('/users/{id}/update', [UserController::class, 'update']);
@@ -91,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });
+Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 Route::get('/owners/{ownerId}/reviews', [ReviewController::class, 'forOwner']);
 
 // ad routes 
@@ -139,9 +143,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/send', [ChatController::class, 'sendMessage']);
    
 });
-
+Route::get('/plans', [PlanController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/plans', [PlanController::class, 'index']);
+  
     Route::post('/plans/subscribe', [PlanController::class, 'subscribeToPlan']);
     Route::get('/plans/my-subscription', [PlanController::class, 'mySubscription']);
     Route::post('/plans/cancel-subscription', [PlanController::class, 'cancelSubscription']);
@@ -150,6 +154,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/plans/mycart', [PlanController::class, 'viewMYCart']);
     Route::post('/plans/add-to-cart', [PlanController::class, 'addToCart']);
     Route::post('/plans/remove-from-cart', [PlanController::class, 'removeFromCart']);
+    Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
 
 });
 
@@ -159,7 +164,6 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
-Route::get('/plans/allow-free-plan', [PlanController::class, 'canSubscribeToFreePlan'])->middleware('auth:sanctum');
 
 Route::post('/rag-query', [RAGController::class, 'query']);
 Route::middleware('auth:sanctum')->group(function () {
@@ -167,6 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat-history', [RAGController::class, 'history']);
 });
 
+Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('coupons', CouponController::class);
     Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
@@ -175,7 +180,16 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans', [PlanController::class, 'store']);
     Route::put('/plans/{id}', [PlanController::class, 'update']);
-    Route::get('/plans', [PlanController::class, 'index']);
-    Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
+});
+
+Route::get('/plans', [PlanController::class, 'index']);
+
+
+
+Route::get('/ads/{ad}/comments', [CommentController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/ads/{property}/comments', [CommentController::class, 'store']);
+    Route::put('/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 });
 

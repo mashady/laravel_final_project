@@ -4,20 +4,45 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\MapboxService;
 
 class Ad extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'owner_id', 'title', 'type', 'picture', 'video',
-        'description', 'price', 'location', 'space',
+        'owner_id', 'title', 'type', /* 'picture', 'video', */
+        'description', 'price', /* 'location', */ 'space',
         'number_of_beds',
         'number_of_bathrooms',
         'area',
         'street',
-        'block'
+        'block',
+        'latitude','longitude'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($property) {
+            if ($property->isDirty(['area', 'street', 'block'])) {
+                $address = implode(', ', array_filter([
+                    $property->block,
+                    $property->street,
+                    $property->area
+                ]));
+                
+                if (!empty($address)) {
+                    $coordinates = MapboxService::geocodeAddress($address);
+                    if ($coordinates) {
+                        $property->latitude = $coordinates['latitude'];
+                        $property->longitude = $coordinates['longitude'];
+                    }
+                }
+            }
+        });
+    }
 
     public function owner()
     {
@@ -60,4 +85,10 @@ class Ad extends Model
         return $this->belongsToMany(User::class, 'wishlists')
             ->withTimestamps();
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'ad_id');
+    }
+    
 }
