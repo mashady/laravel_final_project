@@ -119,7 +119,12 @@ public function studentProfile()
     {
         return $this->hasOne(Subscription::class)
                     ->where('active', true)
-                    ->orderByDesc('id'); // or created_at
+                    ->orderByDesc('id');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
     }
     
     
