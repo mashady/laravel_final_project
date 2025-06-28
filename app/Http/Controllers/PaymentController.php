@@ -48,5 +48,17 @@ class PaymentController extends Controller
         return response()->json(['message' => 'Payment initiated successfully', 'payment_id' => $payment->id]);
     }
     
-
+    public function showPaymentForm(Request $request)
+    {
+        $payments = Payment::with(['user', 'plan'])
+            ->orderByDesc('id')
+            ->get();
+    
+        if ($payments->isEmpty()) {
+            return response()->json(['message' => 'No payments found'], 404);
+        }
+    
+        return response()->json($payments);
+    }
+    
 }

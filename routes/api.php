@@ -172,10 +172,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('coupons', CouponController::class);
-    Route::post('/coupons/validate', [CouponController::class, 'validateCoupon']);
-});
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans', [PlanController::class, 'store']);
@@ -193,3 +190,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
 });
 
+
+Route::get('/all-payments', [PaymentController::class, 'showPaymentForm']);
