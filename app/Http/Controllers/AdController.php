@@ -62,80 +62,61 @@ class AdController extends Controller
     return AdResource::collection($ads);
 }
 
-    public function index(Request $request)
-    {
-        $query = Ad::query()->with(['owner', 'media']);
+public function index(Request $request)
+{
+    $query = Ad::query()->with(['owner', 'media']);
 
-        if ($request->has('title') && !empty($request->title)) {
-            $query->where('title', 'LIKE', '%' . $request->title . '%');
-        }
-        if ($request->has('type') && in_array($request->type, ['apartment', 'room', 'bed'])) {
-            $query->where('type', $request->type);
-        }
-        if ($request->has('description') && !empty($request->description)) {
-            $query->where('description', 'LIKE', '%' . $request->description . '%');
-        }
-        if ($request->has('min_price') && is_numeric($request->min_price)) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->has('max_price') && is_numeric($request->max_price)) {
-            $query->where('price', '<=', $request->max_price);
-        }
-        if ($request->has('area') && !empty($request->area)) {
-            $query->where('area', 'LIKE', '%' . $request->area . '%');
-        }
-        if ($request->has('street') && !empty($request->street)) {
-            $query->where('street', 'LIKE', '%' . $request->street . '%');
-        }
-        if ($request->has('block') && !empty($request->block)) {
-            $query->where('block', 'LIKE', '%' . $request->block . '%');
-        }
-        if ($request->has('number_of_beds') && is_numeric($request->number_of_beds)) {
-            $query->where('number_of_beds', $request->number_of_beds);
-        }
-        if ($request->has('number_of_bathrooms') && is_numeric($request->number_of_bathrooms)) {
-            $query->where('number_of_bathrooms', $request->number_of_bathrooms);
-        }
-        if ($request->has('min_space') && is_numeric($request->min_space)) {
-            $query->where('space', '>=', $request->min_space);
-        }
-        if ($request->has('max_space') && is_numeric($request->max_space)) {
-            $query->where('space', '<=', $request->max_space);
-        }
-        if ($request->has('space') && is_numeric($request->space)) {
-            $query->where('space', $request->space);
-        }
-       
-      
-        
-    
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortDir = $request->get('sort_dir', 'desc');
-        $allowedSorts = ['created_at', 'price', 'space', 'number_of_beds', 'number_of_bathrooms'];
-        if (!in_array($sortBy, $allowedSorts)) {
-            $sortBy = 'created_at';
-        }
-        if (!in_array(strtolower($sortDir), ['asc', 'desc'])) {
-            $sortDir = 'desc';
-        }
-        $query->orderBy($sortBy, $sortDir);
-
-        if ($request->has('q') && !empty($request->q)) {
-            $keywords = preg_split('/\s+/', $request->q);
-            $query->where(function($q) use ($keywords) {
-                foreach ($keywords as $word) {
-                    $q->orWhere('title', 'ILIKE', "%{$word}%")
-                      ->orWhere('description', 'ILIKE', "%{$word}%")
-                      ->orWhere('location', 'ILIKE', "%{$word}%");
-                }
-            });
-        }
-
-        $ads = $query->paginate($request->get('per_page', 10));
-
-        return AdResource::collection($ads);
+    // Modified all text filters to use case-insensitive search
+    if ($request->has('title') && !empty($request->title)) {
+        $query->where('title', 'ILIKE', '%' . $request->title . '%');
     }
+    if ($request->has('type') && in_array(strtolower($request->type), ['apartment', 'room', 'bed'])) {
+        $query->where('type', strtolower($request->type));
+    }
+    if ($request->has('description') && !empty($request->description)) {
+        $query->where('description', 'ILIKE', '%' . $request->description . '%');
+    }
+    if ($request->has('min_price') && is_numeric($request->min_price)) {
+        $query->where('price', '>=', $request->min_price);
+    }
+    if ($request->has('max_price') && is_numeric($request->max_price)) {
+        $query->where('price', '<=', $request->max_price);
+    }
+    if ($request->has('area') && !empty($request->area)) {
+        $query->where('area', 'ILIKE', '%' . $request->area . '%');
+    }
+    if ($request->has('street') && !empty($request->street)) {
+        $query->where('street', 'ILIKE', '%' . $request->street . '%');
+    }
+    if ($request->has('block') && !empty($request->block)) {
+        $query->where('block', 'ILIKE', '%' . $request->block . '%');
+    }
+    if ($request->has('number_of_beds') && is_numeric($request->number_of_beds)) {
+        $query->where('number_of_beds', $request->number_of_beds);
+    }
+    if ($request->has('number_of_bathrooms') && is_numeric($request->number_of_bathrooms)) {
+        $query->where('number_of_bathrooms', $request->number_of_bathrooms);
+    }
+    if ($request->has('min_space') && is_numeric($request->min_space)) {
+        $query->where('space', '>=', $request->min_space);
+    }
+    
+    // Sorting
+    $sortBy = $request->get('sort_by', 'created_at');
+    $sortDir = $request->get('sort_dir', 'desc');
+    $allowedSorts = ['created_at', 'price', 'space', 'number_of_beds', 'number_of_bathrooms'];
+    if (!in_array($sortBy, $allowedSorts)) {
+        $sortBy = 'created_at';
+    }
+    if (!in_array(strtolower($sortDir), ['asc', 'desc'])) {
+        $sortDir = 'desc';
+    }
+    $query->orderBy($sortBy, $sortDir);
+
+    $ads = $query->paginate($request->get('per_page', 10));
+
+    return AdResource::collection($ads);
+}
 
     
     public function store(StoreAdRequest $request)
