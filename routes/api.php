@@ -180,6 +180,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/plans', [PlanController::class, 'store']);
     Route::put('/plans/{id}', [PlanController::class, 'update']);
+    Route::delete('/plans/{id}', [PlanController::class, 'destroy']);
 });
 
 Route::get('/plans', [PlanController::class, 'index']);
