@@ -24,9 +24,11 @@ class RagController extends Controller
         $documents = Document::searchByContent($question)->limit(3)->get();
 
         
-        $context = '';
-        if ($documents->isNotEmpty()) {
-            $context = $documents->pluck('content')->implode("\n---\n");
+        if ($documents->isEmpty()) {
+            return response()->json([
+                'answer' => 'No data provided for this question yet. Please check back later.',
+                'source' => null,
+            ], 200, ['X-RAG-Source' => 'None']);
         }
 
         
