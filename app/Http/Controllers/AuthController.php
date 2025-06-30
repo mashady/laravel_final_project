@@ -31,7 +31,7 @@ class AuthController extends Controller
             $image->move($docsDir, $filename);
             
             // Create the full path for database
-            $documentPath = url('documents/' . $filename);
+            $documentPath = 'documents/' . $filename;
         }
 
         $data = $request->only(['name', 'email', 'role', 'verification_status']);
@@ -194,6 +194,21 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Check if the user is banned
+        if ($user->verification_status === 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your verification is being reviewed, wait for the admin to approve it.'
+            ], 403);
+        }   
+
+        if ($user->verification_status === 'unverified') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has been banned.'
+            ], 403);
+        }
+        
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
