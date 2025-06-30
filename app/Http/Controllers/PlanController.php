@@ -297,6 +297,11 @@ class PlanController extends Controller
     public function destroy($id)
     {
         $plan = Plan::findOrFail($id);
+
+        // check if there are any active subscriptions for this plan
+        if ($plan->subscriptions()->where('active', true)->exists()) {
+            return response()->json(['message' => 'Cannot delete plan with active subscriptions.'], 400);
+        }
         $plan->delete();
         return response()->json(['message' => 'Plan deleted successfully.']);
     }
