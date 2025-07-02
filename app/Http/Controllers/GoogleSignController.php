@@ -23,31 +23,48 @@ class GoogleSignController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
+            
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                
+                $user->update([
                     'name' => $googleUser->getName(),
                     'social_id' => $googleUser->getId(),
                     'social_type' => 'google',
-                    'password' => bcrypt(Str::random(16)), // random password
                     'email_verified_at' => now(),
-                ]
-            );
+                ]);
+            } else {
+                
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'social_id' => $googleUser->getId(),
+                    'social_type' => 'google',
+                    'password' => bcrypt(Str::random(16)),
+                    'email_verified_at' => now(),
+                    'verification_status' => 'pending',
+                ]);
+            }
 
-            // Check if role or document missing:
+            
             if (!$user->role || !$user->verification_document) {
                 return redirect()->away("http://localhost:3000/google?user_id={$user->id}");
             }
 
-            // Else generate token (Sanctum or Passport):
+            if ($user->verification_status !== 'verified') {
+                return redirect()->away("http://localhost:3000/google/callback?user_id={$user->id}&status={$user->verification_status}");
+            }
+            
             $token = $user->createToken('API Token')->plainTextToken;
 
-            return redirect()->away("http://localhost:3000/google/callback?token=$token&user_id={$user->id}");
+            return redirect()->away("http://localhost:3000/google/callback?token=$token&user_id={$user->id}&status={$user->verification_status}");
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Google authentication failed'], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     public function completeProfile(Request $request)
     {
