@@ -35,6 +35,15 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         //
+        // Check if the authenticated user is an admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action. Only admins can create users.',
+                'data' => null
+            ], 403);
+        }
+
         $documentPath = null;
         
         if( $request->hasFile('verification_document') ) {
@@ -110,7 +119,17 @@ class UserController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateUserRequest $request, string $id)
-    {
+    {   
+        // Check if the authenticated user is an admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action. Only admins can create users.',
+                'data' => null
+            ], 403);
+        }
+
+        // Find the user by ID
         $user = User::find($id);
 
         if (!$user) {
@@ -197,7 +216,16 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Check if the authenticated user is an admin
+        if (Auth::user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action. Only admins can delete users.',
+                'data' => null
+            ], 403);
+        }
+        
+        // Find the user by ID
         $user = User::find($id);
 
         if (!$user) {
