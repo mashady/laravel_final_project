@@ -68,33 +68,45 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        //
         $user = User::find($id);
-
-        if ($user) {
-            if ($user->role === 'student') {
-            $user->load('studentProfile');
-            } elseif ($user->role === 'owner') {
-            $user->load('ownerProfile', 'ads.media');
-            }
-        }
-
-        if( !$user ) {
+    
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found.',
                 'data' => null
             ], 404);
         }
-
+    
+        if ($user->role === 'student') {
+            $user->load('studentProfile');
+        } elseif ($user->role === 'owner') {
+            $user->load('ownerProfile');
+        }
+    
+        // Paginate the ads separately
+        $ads = [];
+        if ($user->role === 'owner') {
+            $ads = $user->ads()->with('media')->paginate(
+                $request->get('per_page', 4), 
+                ['*'], 
+                'page', 
+                $request->get('page', 1)
+            );
+        }
+    
         return response()->json([
-                'success' => true,
-                'message' => 'User retrieved successfully.',
-                'data' => $user
-            ], 200);
+            'success' => true,
+            'message' => 'User retrieved successfully.',
+            'data' => [
+                'user' => $user,
+                'ads' => $ads
+            ]
+        ], 200);
     }
+    
 
     /**
      * Update the specified resource in storage.
