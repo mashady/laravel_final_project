@@ -109,10 +109,13 @@ class UserController extends Controller
             );
         }
         return response()->json([
-                'success' => true,
-                'message' => 'User retrieved successfully.',
-                'data' => $user
-            ], 200);
+            'success' => true,
+            'message' => 'User retrieved successfully.',
+            'data' => [
+                'user' => $user,
+                'ads' => $ads
+            ]
+        ], 200);
     }
 
     /**
