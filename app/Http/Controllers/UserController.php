@@ -20,15 +20,15 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        //$perPage = $request->input('per_page', 10);
         $users = User::all();
+    
         return response()->json([
             'success' => true,
             'message' => 'Users retrieved successfully',
             'data' => $users
         ], 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -68,7 +68,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show( Request $request, string $id)
     {
         //
         $user = User::find($id);
@@ -89,6 +89,16 @@ class UserController extends Controller
             ], 404);
         }
 
+
+        $ads = [];
+        if ($user->role === 'owner') {
+            $ads = $user->ads()->with('media')->paginate(
+                $request->get('per_page', 4), 
+                ['*'], 
+                'page', 
+                $request->get('page', 1)
+            );
+        }
         return response()->json([
                 'success' => true,
                 'message' => 'User retrieved successfully.',

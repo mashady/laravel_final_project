@@ -24,8 +24,8 @@ class OwnerStoreRequest extends FormRequest
         return [
             'picture' => 'nullable|image|max:2048',
             'bio' => 'nullable|string|max:1000',
-            'phone_number' => 'nullable|string|max:20',
-            'whatsapp_number' => 'nullable|string|max:20',
+            'phone_number' => 'nullable|regex:/^01[0125][0-9]{8}$/',
+            'whatsapp_number' => 'nullable|regex:/^01[0125][0-9]{8}$/',
             'address' => 'nullable|string',
         ];
     }
