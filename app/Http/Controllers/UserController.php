@@ -301,23 +301,23 @@ public function updateWithProfile(Request $request, $id)
             $picturesDir = public_path('profile_pictures');
             
             if (!file_exists($picturesDir)) {
-                mkdir($picturesDir, 0755, true);
+            mkdir($picturesDir, 0755, true);
             }
 
             // Delete old picture if exists
             $oldPicture = null;
             if ($user->isStudent() && $user->studentProfile && $user->studentProfile->picture) {
-                $oldPicture = public_path('profile_pictures/' . basename($user->studentProfile->picture));
+            $oldPicture = public_path('profile_pictures/' . basename($user->studentProfile->picture));
             } elseif ($user->isOwner() && $user->ownerProfile && $user->ownerProfile->picture) {
-                $oldPicture = public_path('profile_pictures/' . basename($user->ownerProfile->picture));
+            $oldPicture = public_path('profile_pictures/' . basename($user->ownerProfile->picture));
             }
 
             if ($oldPicture && file_exists($oldPicture)) {
-                unlink($oldPicture);
+            unlink($oldPicture);
             }
 
             $picture->move($picturesDir, $fileName);
-            $profileData['picture'] = url('profile_pictures/' . $fileName);
+            $profileData['picture'] = 'profile_pictures/' . $fileName;
         }
 
         // Update profile based on role
