@@ -77,7 +77,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show( Request $request, string $id)
+    public function show(string $id)
     {
         //
         $user = User::find($id);
@@ -98,24 +98,11 @@ class UserController extends Controller
             ], 404);
         }
 
-
-        $ads = [];
-        if ($user->role === 'owner') {
-            $ads = $user->ads()->with('media')->paginate(
-                $request->get('per_page', 4), 
-                ['*'], 
-                'page', 
-                $request->get('page', 1)
-            );
-        }
         return response()->json([
-            'success' => true,
-            'message' => 'User retrieved successfully.',
-            'data' => [
-                'user' => $user,
-                'ads' => $ads
-            ]
-        ], 200);
+                'success' => true,
+                'message' => 'User retrieved successfully.',
+                'data' => $user
+            ], 200);
     }
 
     /**
