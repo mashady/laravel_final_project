@@ -56,7 +56,7 @@ class AdController extends Controller
         $query->where('location', 'LIKE', '%' . $validated['location'] . '%');
     }
 
-    $perPage = $request->get('per_page', 10);
+    $perPage = $request->get('per_page', 3);
     $ads = $query->latest()->paginate($perPage);
 
     return AdResource::collection($ads);
@@ -113,7 +113,7 @@ public function index(Request $request)
     }
     $query->orderBy($sortBy, $sortDir);
 
-    $ads = $query->paginate($request->get('per_page', 10));
+    $ads = $query->paginate($request->get('per_page', 6));
 
     return AdResource::collection($ads);
 }
