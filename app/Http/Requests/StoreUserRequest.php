@@ -29,7 +29,8 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'confirmed', 'min:12', 'max:50', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,50}$/'],
             'role' => ['required', 'string', Rule::in(['admin', 'owner', 'student'])],
             'verification_status' => ['sometimes', 'string', Rule::in(['unverified', 'pending', 'verified'])],
-            'verification_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'verification_document' => ['nullable'],
+            'profile_image' => ['nullable'],
         ];
     }
 
@@ -61,10 +62,6 @@ class StoreUserRequest extends FormRequest
             
             'verification_status.string' => 'The verification status must be a valid text format.',
             'verification_status.in' => 'The verification status must be either unverified, pending, or verified.',
-            
-            'verification_document.file' => 'The verification document must be a valid file.',
-            'verification_document.mimes' => 'The verification document must be a JPEG, JPG, PNG, or PDF file.',
-            'verification_document.max' => 'The verification document size cannot exceed 5MB.',
         ];
     }
 

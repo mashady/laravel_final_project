@@ -9,6 +9,7 @@ use App\Http\Requests\StoreUserRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -16,27 +17,34 @@ class AuthController extends Controller
     public function register(StoreUserRequest $request)
     {
         $documentPath = null;
+        $profileImagePath = null;
         
+        // Handle verification document file upload
         if ($request->hasFile('verification_document')) {
             $image = $request->file('verification_document');
             $filename = time() . '_' . Str::slug($request['name']) . '.' . $image->getClientOriginalExtension();
-            
-            // Check if directory exists, if not create it
             $docsDir = public_path('documents');
             if (!file_exists($docsDir)) {
                 mkdir($docsDir, 0755, true);
             }
-            
-            // Move the uploaded file
             $image->move($docsDir, $filename);
-            
-            // Create the full path for database
-            $documentPath = url('documents/' . $filename);
+            $documentPath = 'documents/' . $filename;
+        }
+        if ($request->hasFile('picture')) {
+            $profileImage = $request->file('picture');
+            $profileImageName = time() . '_' . Str::slug($request['name']) . '_profile.' . $profileImage->getClientOriginalExtension();
+            $profileDir = public_path('profile_pictures');
+            if (!file_exists($profileDir)) {
+                mkdir($profileDir, 0755, true);
+            }
+            $profileImage->move($profileDir, $profileImageName);
+            $profileImagePath = 'profile_images/' . $profileImageName;
         }
 
         $data = $request->only(['name', 'email', 'role', 'verification_status']);
         $data['password'] = Hash::make($request->password);
         $data['verification_document'] = $documentPath;
+        $data['picture'] = $profileImagePath;
 
         \DB::beginTransaction();
 
@@ -49,7 +57,7 @@ class AuthController extends Controller
             switch ($user->role) {
                 case 'student':
                     $user->studentProfile()->create([
-                        'picture' => null,
+                        'picture' =>  $data['picture'],
                         'bio' => null,
                         'university' => null,
                         'phone_number' => null,
@@ -57,10 +65,9 @@ class AuthController extends Controller
                         'address' => null
                     ]);
                     break;
-                    
                 case 'owner':
                     $user->ownerProfile()->create([
-                        'picture' => null,
+                        'picture' =>   $data['picture'],
                         'bio' => null,
                         'phone_number' => null,
                         'whatsapp_number' => null,
@@ -69,7 +76,6 @@ class AuthController extends Controller
                         'qualification' => null
                     ]);
                     break;
-                    
             }
 
             \DB::commit();
@@ -194,6 +200,21 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Check if the user is banned
+        if ($user->verification_status === 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your verification is being reviewed, wait for the admin to approve it.'
+            ], 403);
+        }   
+
+        if ($user->verification_status === 'unverified') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account has been banned.'
+            ], 403);
+        }
+        
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

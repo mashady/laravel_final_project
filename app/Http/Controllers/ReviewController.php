@@ -89,9 +89,9 @@ class ReviewController extends Controller
             ], 404);
         }
         $request = app('request');
-        if ($review->user_id !== ($request->user() ? $request->user()->id : null)) {
+        if ($review->user_id !== ($request->user() ? $request->user()->id : null) && !($request->user() && $request->user()->role === 'admin')) {
             return response()->json([
-                'message' => 'Not authorized to delete this review',
+            'message' => 'Not authorized to delete this review',
             ], 403);
         }
         $review->delete();
