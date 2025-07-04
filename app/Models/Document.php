@@ -4,18 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Builder;
 class Document extends Model
 {
     protected $fillable = ['title', 'content'];
 
     // app/Models/Document.php
 
-    public function scopeSearchByContent($query, $text)
+    public static function searchByContent(string $text): Builder
     {
-        return $query->whereRaw(
-            "to_tsvector('english', content) @@ plainto_tsquery('english', ?)",
-            [$text]
-        );
+        // Extract keywords from the question
+        $keywords = preg_split('/\s+/', strtolower($text));
+        $query = self::query();
+    
+        foreach ($keywords as $word) {
+            if (strlen($word) >= 3) { // ignore short/common words
+                $query->orWhere('title', 'ILIKE', "%{$word}%")
+                      ->orWhere('content', 'ILIKE', "%{$word}%");
+            }
+        }
+    
+        return $query;
     }
 
 }
