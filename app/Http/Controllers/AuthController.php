@@ -28,7 +28,8 @@ class AuthController extends Controller
                 mkdir($docsDir, 0755, true);
             }
             $image->move($docsDir, $filename);
-            $documentPath = 'documents/' . $filename;
+          
+            $documentPath = asset('documents/' . $filename);
         }
         if ($request->hasFile('picture')) {
             $profileImage = $request->file('picture');
@@ -38,7 +39,8 @@ class AuthController extends Controller
                 mkdir($profileDir, 0755, true);
             }
             $profileImage->move($profileDir, $profileImageName);
-            $profileImagePath = 'profile_images/' . $profileImageName;
+            
+            $profileImagePath = asset('profile_pictures/' . $profileImageName);
         }
 
         $data = $request->only(['name', 'email', 'role', 'verification_status']);
@@ -86,10 +88,25 @@ class AuthController extends Controller
             // Notify verify status is pending
             $user->notify(new \App\Notifications\VerificationStatusChanged('pending'));
 
+            $userData = $user->toArray();
+            // Fix: Use isset to avoid undefined key error
+            $userData['picture_url'] = isset($userData['picture']) && $userData['picture'] ? asset($userData['picture']) : null;
+            $userData['verification_document_url'] = isset($userData['verification_document']) && $userData['verification_document'] ? asset($userData['verification_document']) : null;
+
+            $profile = $user->role === 'student' ? $user->studentProfile : $user->ownerProfile;
+            if ($profile && $profile->picture) {
+                $profile->picture_url = asset($profile->picture);
+            } else if ($profile) {
+                $profile->picture_url = null;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',
-                'data' => $user->load($user->role === 'student' ? 'studentProfile' : 'ownerProfile'),
+                'data' => [
+                    'user' => $userData,
+                    'profile' => $profile,
+                ],
             ], 201);
 
         } catch (\Exception $e) {
