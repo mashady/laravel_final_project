@@ -165,10 +165,11 @@ Route::get('/user-data/{id}', [UserController::class, 'showWithProfile']);
 Route::post('/create-checkout-session', [PaymentController::class, 'createSession']);
 Route::post('/add-to-payment', [PaymentController::class, 'addToPayment'])->middleware('auth:sanctum');
 
-Route::post('/rag-query', [RAGController::class, 'query']);
+Route::post('/rag-query', [RagController::class, 'query']);
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/documents', [RAGController::class, 'store']);
-    Route::get('/chat-history', [RAGController::class, 'history']);
+    Route::post('/documents', [RagController::class, 'store']);
+    Route::get('/chat-history', [RagController::class, 'history']);
 });
 
 Route::get('/properties/near-university', [AdController::class, 'nearUniversity']);
