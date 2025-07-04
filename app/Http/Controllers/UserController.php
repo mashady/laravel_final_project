@@ -20,15 +20,15 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        //$perPage = $request->input('per_page', 10);
         $users = User::all();
+    
         return response()->json([
             'success' => true,
             'message' => 'Users retrieved successfully',
             'data' => $users
         ], 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
