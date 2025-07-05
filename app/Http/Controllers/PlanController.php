@@ -250,7 +250,7 @@ class PlanController extends Controller
     {
         $user = $request->user();
         $hasUsedFreePlan = $user->subscriptions()
-        ->where('plan_id', 1)
+        ->where('plan_id', 20)
         ->exists();
     
         return response()->json([

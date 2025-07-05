@@ -423,6 +423,7 @@ public function nearUniversity(Request $request)
 
     // Step 2: Create a subquery with distance as alias
     $subQuery = DB::table('ads')
+        ->whereNull('deleted_at')
         ->selectRaw($rawDistanceSql, [
             $universityLocation['latitude'],
             $universityLocation['longitude'],
