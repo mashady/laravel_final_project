@@ -77,8 +77,22 @@ class GoogleSignController extends Controller
         $user = User::find($request->user_id);
 
         if ($request->hasFile('verification_document')) {
-            $path = $request->file('verification_document')->store('documents', 'public');
-            $user->verification_document = $path;
+
+            $document = $request->file('verification_document');
+            $fileName = time() . '_' . Str::slug($request->name) . '.' . $document->getClientOriginalExtension();
+
+            $docsDir = public_path('documents');
+            if( !file_exists($docsDir) ) {
+                mkdir($docsDir, 0755, true);
+            }
+
+            $document->move($docsDir, $fileName);
+
+            $documentPath = url('documents/' . $fileName);
+
+
+            // $path = $request->file('verification_document')->store('documents', 'public');
+            $user->verification_document = $documentPath;
         }
 
         $user->role = $request->role;

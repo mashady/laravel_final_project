@@ -16,7 +16,7 @@ class ContactController extends Controller
             'message' => 'required|string|min:10',
         ]);
 
-        Mail::to('mostafamokna78@gmail.com')->send(new ContactMessageMail($validated));
+        Mail::to('muhammedmashady@gmail.com')->send(new ContactMessageMail($validated));
 
         return response()->json(['message' => 'Message sent successfully']);
     }
