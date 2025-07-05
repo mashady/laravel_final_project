@@ -71,7 +71,8 @@ class GoogleSignController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'role' => 'required|string|in:student,owner',
-            'verification_document' => 'required|file|mimes:pdf,png,jpg,jpeg|max:5120', // 5MB
+            'verification_document' => 'required|file|mimes:pdf,png,jpg,jpeg|max:5120',
+            'profile_image' => ['nullable']
         ]);
 
         $user = User::find($request->user_id);
@@ -95,14 +96,35 @@ class GoogleSignController extends Controller
             $user->verification_document = $documentPath;
         }
 
+        if ($request->hasFile('profile_image')) {
+
+            $image = $request->file('profile_image');
+            $fileName = time() . '_' . Str::slug($request->name) . '.' . $image->getClientOriginalExtension();
+
+            $imageDir = public_path('profile_pictures');
+            if( !file_exists($imageDir) ) {
+                mkdir($imageDir, 0755, true);
+            }
+
+            $image->move($imageDir, $fileName);
+
+            $imagePath = url('profile_pictures/' . $fileName);
+
+            $user_profile_image = $imagePath;
+        }
+
         $user->role = $request->role;
-        $user->verification_status = 'pending';
+        if( !request()->has('verification_status') ) {
+            $user->verification_status = 'pending';
+        } else {
+            $user->verification_status = $request->verification_status;
+        }
         $user->save();
 
         // Create profile based on role if not exists
         if ($user->role === 'student' && !$user->studentProfile) {
             $user->studentProfile()->create([
-                'picture' => null,
+                'picture' => $user_profile_image,
                 'bio' => null,
                 'university' => null,
                 'phone_number' => null,
@@ -111,7 +133,7 @@ class GoogleSignController extends Controller
             ]);
         } elseif ($user->role === 'owner' && !$user->ownerProfile) {
             $user->ownerProfile()->create([
-                'picture' => null,
+                'picture' => $user_profile_image,
                 'bio' => null,
                 'phone_number' => null,
                 'whatsapp_number' => null,

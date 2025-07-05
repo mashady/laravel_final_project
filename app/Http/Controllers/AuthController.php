@@ -19,6 +19,7 @@ class AuthController extends Controller
         $documentPath = null;
         $profileImagePath = null;
         
+        
         // Handle verification document file upload
         if ($request->hasFile('verification_document')) {
             $image = $request->file('verification_document');
