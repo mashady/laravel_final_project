@@ -36,13 +36,13 @@ class UserController extends Controller
     {
         //
         // Check if the authenticated user is an admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized action. Only admins can create users.',
-                'data' => null
-            ], 403);
-        }
+        // if (Auth::user()->role !== 'admin') {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Unauthorized action. Only admins can create users.',
+        //         'data' => null
+        //     ], 403);
+        // }
 
         $documentPath = null;
         
@@ -207,13 +207,13 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         // Check if the authenticated user is an admin
-        if (Auth::user()->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized action. Only admins can delete users.',
-                'data' => null
-            ], 403);
-        }
+        // if (Auth::user()->role !== 'admin') {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Unauthorized action. Only admins can delete users.',
+        //         'data' => null
+        //     ], 403);
+        // }
         
         // Find the user by ID
         $user = User::find($id);
